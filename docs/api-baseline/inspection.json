@@ -1,0 +1,423 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "OpenAPI definition",
+    "version": "v0"
+  },
+  "servers": [
+    {
+      "url": "http://localhost:8080",
+      "description": "Generated server url"
+    }
+  ],
+  "tags": [
+    {
+      "name": "Inspección Técnica Vehicular",
+      "description": "Endpoints para la gestión del flujo core de inspecciones técnicas vehiculares"
+    }
+  ],
+  "paths": {
+    "/api/inspecciones/{id}/iniciar": {
+      "put": {
+        "tags": [
+          "Inspección Técnica Vehicular"
+        ],
+        "summary": "Iniciar proceso de inspección",
+        "description": "Cambia el estado a EN_PROCESO y marca la fecha/hora de inicio",
+        "operationId": "iniciar",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/InspeccionResponseDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/inspecciones/{id}/finalizar": {
+      "put": {
+        "tags": [
+          "Inspección Técnica Vehicular"
+        ],
+        "summary": "Finalizar inspección",
+        "description": "Evalúa todas las pruebas registradas y emite automáticamente Certificado (Apto) o Acta de Observaciones (Observado)",
+        "operationId": "finalizar",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/FinalizarInspeccionRequestDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/InspeccionResponseDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/inspecciones": {
+      "post": {
+        "tags": [
+          "Inspección Técnica Vehicular"
+        ],
+        "summary": "Crear nueva inspección",
+        "description": "Registra una nueva inspección técnica validando vehículo e inspector",
+        "operationId": "crear",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CrearInspeccionRequestDto"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/InspeccionResponseDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/inspecciones/{id}/pruebas": {
+      "post": {
+        "tags": [
+          "Inspección Técnica Vehicular"
+        ],
+        "summary": "Registrar resultado de prueba",
+        "description": "Agrega una evaluación técnica (frenos, emisiones, dirección, etc.) a la inspección en curso",
+        "operationId": "registrarPrueba",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RegistrarPruebaRequestDto"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/InspeccionResponseDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/scalar": {
+      "get": {
+        "tags": [
+          "scalar-web-mvc-controller"
+        ],
+        "operationId": "getDocs",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/scalar/scalar.js": {
+      "get": {
+        "tags": [
+          "scalar-web-mvc-controller"
+        ],
+        "operationId": "getScalarJs",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "string",
+                  "format": "byte"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/inspecciones/{id}": {
+      "get": {
+        "tags": [
+          "Inspección Técnica Vehicular"
+        ],
+        "summary": "Consultar inspección por ID",
+        "description": "Obtiene los datos completos de la inspección técnica, sus pruebas y documento emitido",
+        "operationId": "obtenerPorId",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/InspeccionResponseDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Acta": {
+        "type": "object",
+        "properties": {
+          "idActa": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "inspeccionId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "observaciones": {
+            "type": "string"
+          },
+          "fechaEmision": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "Certificado": {
+        "type": "object",
+        "properties": {
+          "idCertificado": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "inspeccionId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "fechaEmision": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "InspeccionResponseDto": {
+        "type": "object",
+        "properties": {
+          "idInspeccion": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "idVehiculo": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "idInspector": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "idSupervisor": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "tipoInspeccion": {
+            "type": "string"
+          },
+          "idInspeccionOrigen": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "estadoProceso": {
+            "type": "string"
+          },
+          "observaciones": {
+            "type": "string"
+          },
+          "periodoInspeccion": {
+            "$ref": "#/components/schemas/Periodo"
+          },
+          "resultado": {
+            "$ref": "#/components/schemas/Resultado"
+          },
+          "evaluaciones": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Prueba"
+            }
+          },
+          "certificado": {
+            "$ref": "#/components/schemas/Certificado"
+          },
+          "acta": {
+            "$ref": "#/components/schemas/Acta"
+          }
+        }
+      },
+      "Periodo": {
+        "type": "object",
+        "properties": {
+          "fechaInicio": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "fechaFin": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "Prueba": {
+        "type": "object",
+        "properties": {
+          "prueba": {
+            "type": "string"
+          },
+          "resultado": {
+            "type": "string"
+          }
+        }
+      },
+      "Resultado": {
+        "type": "object",
+        "properties": {
+          "condicion": {
+            "type": "string"
+          }
+        }
+      },
+      "FinalizarInspeccionRequestDto": {
+        "type": "object",
+        "properties": {
+          "observaciones": {
+            "type": "string"
+          }
+        }
+      },
+      "CrearInspeccionRequestDto": {
+        "type": "object",
+        "properties": {
+          "idVehiculo": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "idInspector": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "idSupervisor": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "tipoInspeccion": {
+            "type": "string"
+          },
+          "idInspeccionOrigen": {
+            "type": "integer",
+            "format": "int64"
+          }
+        },
+        "required": [
+          "idInspector",
+          "idVehiculo"
+        ]
+      },
+      "RegistrarPruebaRequestDto": {
+        "type": "object",
+        "properties": {
+          "prueba": {
+            "type": "string",
+            "minLength": 1
+          },
+          "resultado": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "required": [
+          "prueba",
+          "resultado"
+        ]
+      }
+    }
+  }
+}
