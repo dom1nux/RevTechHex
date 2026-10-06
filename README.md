@@ -1,22 +1,29 @@
 # RevTech — Plataforma Integral de Inspección Técnica Vehicular
 
-Plataforma basada en un **monolito modular con Arquitectura Hexagonal** y **Domain-Driven Design (DDD)** para la gestión y certificación técnica vehicular conforme a la normativa regulatoria.
+RevTech es el software de un **centro de inspección técnica vehicular** en el Perú. Registra cada inspección, anota el
+resultado de las pruebas (frenos, luces, emisiones…), decide si el vehículo es **APTO** u **OBSERVADO**, emite el
+Certificado de Inspección o el Acta de Observaciones, e informa el resultado al **MTC**.
+
+Técnicamente es un **monolito modular con arquitectura hexagonal** y **Domain-Driven Design (DDD)**: una sola
+aplicación Spring Boot, [`revtech-app`](revtech-app/) (puerto 8000), dividida por dentro en contextos independientes.
 
 ---
 
-## 1. Arquitectura y Dominio
+## 1. Ruta de lectura
 
-Todo el sistema se despliega como una única aplicación, [`revtech-app`](revtech-app/) (puerto 8000), organizada por capas hexagonales y, dentro de cada capa, por contexto delimitado (*Bounded Context*) según el documento de referencia [**DISEÑO TÁCTICO - REVTECH.md**](docs/DISEÑO%20TÁCTICO%20-%20REVTECH.md). El detalle está en [**ARQUITECTURA-HEXAGONAL.md**](docs/ARQUITECTURA-HEXAGONAL.md).
+Si es tu primera vez en el proyecto, lee en este orden (unos 50 minutos en total):
 
-* **Subdominio Core:**
-  * `inspeccion`: ciclo de vida de la inspección técnica vehicular, registro de pruebas por sistemas (frenos, emisiones, suspensión, dirección, etc.) y emisión mutuamente excluyente del **Certificado de Inspección** (Apto) o del **Acta de Observaciones** (Observado).
-* **Subdominios de Soporte / Genéricos:**
-  * `clientes`: gestión de clientes y parque vehicular.
-  * `identidad`: control de acceso y personal (inspectores, supervisores).
-  * *Pendientes:* `citas` (agendamiento), `pagos` (cobros) y `administrativa` (líneas de inspección y catálogos). Se agregarán como nuevos contextos dentro de `revtech-app`.
-* **Sistema externo:** MTC, integrado mediante OpenFeign, con un mock en memoria activo por defecto (`revtech.clients.mock=true`).
+| # | Guía | Qué aprenderás |
+|---|---|---|
+| 1 | [El negocio](docs/01-el-negocio.md) | Qué es una inspección técnica, quién participa y el glosario de términos ↔ clases |
+| 2 | [Arquitectura](docs/02-arquitectura.md) | Hexagonal y DDD explicados desde cero, carpetas y reglas |
+| 3 | [Recorrido de una petición](docs/03-recorrido-de-una-peticion.md) | Una petición real seguida archivo por archivo |
+| 4 | [Cómo agregar un contexto](docs/04-como-agregar-un-contexto.md) | Receta paso a paso para implementar Citas, Pagos o Administrativa |
+| — | [Guía práctica de `revtech-app`](revtech-app/README.md) | Ejecutar los flujos de inspección con `curl` |
+| — | [DISEÑO TÁCTICO - REVTECH](docs/DISEÑO%20TÁCTICO%20-%20REVTECH.md) | El diseño formal del curso: entidades, objetos de valor y agregados |
 
-Los contextos se comunican en proceso únicamente a través de sus puertos de entrada, y ArchUnit verifica ese aislamiento en cada build.
+Contextos implementados: **Inspección** (núcleo), **Clientes** e **Identidad**. Pendientes: Citas, Pagos y
+Administrativa. El MTC es un sistema externo, simulado por defecto (`revtech.clients.mock=true`).
 
 ---
 

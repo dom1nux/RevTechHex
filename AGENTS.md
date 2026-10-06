@@ -11,7 +11,7 @@ Operational guidance for autonomous AI agents working in `RevTech`.
 - **Domain Contexts (DDD):** Reference specifications live in `docs/DISEÑO TÁCTICO - REVTECH.md`.
 - **Module:** `revtech-app` (`org.parangaricutirimicuaro.revtech`) - the single deployable (Port 8000). It serves every `/api/**` endpoint, CORS and the Scalar portal.
 - **Implemented bounded contexts:** `inspeccion` (core), `clientes` (clients & vehicles), `identidad` (identity & access). `citas`, `pagos` and `administrativa` are not implemented yet; add them as new context sub-packages following the same layout.
-- **Package Layout (hybrid: layer first, bounded context second):** see `docs/ARQUITECTURA-HEXAGONAL.md`.
+- **Package Layout (hybrid: layer first, bounded context second):** see `docs/02-arquitectura.md` (student guides in Spanish: `docs/01`–`04`).
   - `domain/<contexto>/` - Aggregates, entities, value objects (records), typed IDs, enums, domain events and exceptions. Pure Java: no Spring, JPA or Lombok.
   - `application/<contexto>/port/in/` - Use-case interfaces (one per use case) and their command records
   - `application/<contexto>/port/out/` - Outbound ports (repositories, other contexts, MTC, event publisher)
