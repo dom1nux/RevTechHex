@@ -133,10 +133,18 @@ gh stack add feat/nueva-capa
 # Push and create/update chained PRs on GitHub
 gh stack submit --auto --open
 
+# Check CI on every PR of the stack (all must be green)
+gh pr checks <pr_number>
+
 # Merge stack to main and prune local/remote merged branches
 gh stack merge <target_pr_or_stack> --yes --rebase
 gh stack sync --prune
 ```
+
+### CI Gate (`.github/workflows/ci.yml`)
+- Every PR (any base branch, drafts included) runs the `test` job: MySQL via `docker compose up -d --wait mysql`, then `./mvnw -B -ntp verify`.
+- The `main` ruleset requires `test` to pass and the PR to be up to date with `main`; run `gh stack sync` / `gh stack rebase` when GitHub reports it is behind.
+- Do not merge a stack until `test` is green on every PR in it. Merge up to the **top** PR: its run tests the combined code of all layers.
 
 ---
 
