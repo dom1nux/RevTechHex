@@ -130,10 +130,10 @@ Al agregar un contexto nuevo basta con añadir su nombre a `CONTEXTOS` en esa pr
 
 | Contexto | Agregados | Identificadores | Reglas |
 |---|---|---|---|
-| Clientes | `Cliente`, `Vehiculo` (referencia a su propietario por `ClienteId`) | `ClienteId`, `VehiculoId` | Documento y nombre obligatorios; placa obligatoria y normalizada a mayúsculas; `transferirPropietario`. |
-| Identidad | `Usuario` (referencia su rol por `RolId`), `RolAcceso` | `UsuarioId`, `RolId` | Username único; solo se asignan roles existentes y activos; suspensión de usuarios; token de sesión simulado. |
+| Clientes | `Cliente`, `Vehiculo` (referencia a su propietario por `ClienteId`) | `ClienteId`, `VehiculoId` | Documento y nombre obligatorios; placa obligatoria y normalizada a mayúsculas. |
+| Identidad | `Usuario` (referencia su rol por `RolId`), `RolAcceso` | `UsuarioId`, `RolId` | Username único; solo se asignan roles existentes y activos. |
 
-Ambos modelos usan factorías (`registrar`) para objetos nuevos y `reconstituir` para objetos persistidos.
+Los objetos nuevos se crean con `registrar` y los persistidos se recrean con `reconstituir`. Clientes y roles se cargan directamente en la base de datos.
 
 ## Eventos de dominio
 
@@ -173,14 +173,12 @@ Los eventos se publican solo después de persistir: si el guardado falla, no se 
 | Clientes | `ConsultarVehiculoUseCase` | `GET /api/vehiculos/{id}`, `GET /api/vehiculos/placa/{placa}` · usado por Inspección |
 | Identidad | `RegistrarUsuarioUseCase` | `POST /api/usuarios` |
 | Identidad | `ConsultarUsuarioUseCase` | `GET /api/usuarios/{id}` · usado por Inspección |
-| Identidad | `GestionarUsuarioUseCase`, `AutenticarUseCase` | Sin endpoint todavía |
 
 ## Errores HTTP (Problem Details, RFC 9457)
 
 | Excepción | HTTP |
 |---|---|
 | `DatoInvalidoException`, `DatoClienteInvalidoException`, `DatoIdentidadInvalidoException`, validación de request | 400 |
-| `CredencialesInvalidasException` | 401 |
 | `InspeccionNoEncontradaException`, `RecursoIdentidadNoEncontradoException` | 404 |
 | `TransicionEstadoInvalidaException`, `ReglaNegocioVioladaException`, `ReglaIdentidadVioladaException` | 409 |
 | `ReferenciaExternaInvalidaException` (vehículo/usuario inexistente o inactivo) | 422 |

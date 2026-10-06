@@ -30,12 +30,8 @@ public class Cliente {
         this.fechaRegistro = fechaRegistro;
     }
 
-    public static Cliente registrar(String docIdent, String nombre, LocalDateTime ahora) {
-        return new Cliente(null, docIdent, nombre, ahora);
-    }
-
     /**
-     * Recrea un cliente ya persistido.
+     * Recrea un cliente ya persistido. Los clientes se registran directamente en la base de datos.
      */
     public static Cliente reconstituir(ClienteId id, String docIdent, String nombre, LocalDateTime fechaRegistro) {
         if (id == null) {

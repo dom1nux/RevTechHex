@@ -30,11 +30,6 @@ public class UsuarioPersistenceAdapter implements UsuarioRepositoryPort {
     }
 
     @Override
-    public Optional<Usuario> buscarPorUsername(String username) {
-        return repository.findByUsername(username).map(IdentidadPersistenceMapper::toDomain);
-    }
-
-    @Override
     public boolean existePorUsername(String username) {
         return repository.existsByUsername(username);
     }

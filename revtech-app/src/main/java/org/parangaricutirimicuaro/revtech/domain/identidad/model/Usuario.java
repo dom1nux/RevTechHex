@@ -9,9 +9,9 @@ public class Usuario {
 
     private final UsuarioId id;
     private final String username;
-    private String passwordHash;
-    private RolId rolActivo;
-    private boolean estadoActivo;
+    private final String passwordHash;
+    private final RolId rolActivo;
+    private final boolean estadoActivo;
 
     private Usuario(UsuarioId id, String username, String passwordHash, RolId rolActivo, boolean estadoActivo) {
         if (username == null || username.isBlank()) {
@@ -40,24 +40,6 @@ public class Usuario {
             throw new IllegalArgumentException("Solo se puede reconstituir un usuario ya persistido");
         }
         return new Usuario(id, username, passwordHash, rolActivo, estadoActivo);
-    }
-
-    public void cambiarContrasena(String nuevoHash) {
-        if (nuevoHash == null || nuevoHash.isBlank()) {
-            throw new DatoIdentidadInvalidoException("El nuevo hash no puede ser nulo o vacío");
-        }
-        this.passwordHash = nuevoHash;
-    }
-
-    public void cambiarEstadoActivo(boolean estado) {
-        this.estadoActivo = estado;
-    }
-
-    public void asignarRol(RolId rol) {
-        if (rol == null) {
-            throw new DatoIdentidadInvalidoException("rolId no puede ser nulo");
-        }
-        this.rolActivo = rol;
     }
 
     public UsuarioId getId() {

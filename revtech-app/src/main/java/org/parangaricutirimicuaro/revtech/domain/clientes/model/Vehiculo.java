@@ -8,7 +8,7 @@ import org.parangaricutirimicuaro.revtech.domain.clientes.exception.DatoClienteI
 public class Vehiculo {
 
     private final VehiculoId id;
-    private ClienteId propietario;
+    private final ClienteId propietario;
     private final String placa;
     private final CategoriaVehiculo categoria;
     private final String marca;
@@ -46,13 +46,6 @@ public class Vehiculo {
             throw new IllegalArgumentException("Solo se puede reconstituir un vehículo ya persistido");
         }
         return new Vehiculo(id, propietario, placa, categoria, marca, modelo, anioFabricacion);
-    }
-
-    public void transferirPropietario(ClienteId nuevoPropietario) {
-        if (nuevoPropietario == null) {
-            throw new DatoClienteInvalidoException("nuevoClienteId no puede ser nulo");
-        }
-        this.propietario = nuevoPropietario;
     }
 
     public VehiculoId getId() {
