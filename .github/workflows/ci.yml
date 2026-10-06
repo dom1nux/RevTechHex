@@ -15,8 +15,8 @@ permissions:
   pull-requests: read
 
 jobs:
-  # The workflow always runs so the required `test` check always reports.
-  # Docs-only changes skip `test`, and a skipped job satisfies the ruleset.
+  # The workflow always runs so the required checks always report.
+  # Docs-only changes skip `unit` and `integration`; skipped jobs satisfy the ruleset.
   changes:
     runs-on: ubuntu-latest
     outputs:
@@ -36,12 +36,13 @@ jobs:
               - 'docker/**'
               - '.github/workflows/ci.yml'
 
-  test:
-    name: test
+  # Fail early: no database, so it runs in seconds and gates the integration job.
+  unit:
+    name: unit
     needs: changes
     if: needs.changes.outputs.code == 'true'
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@v5
 
@@ -51,11 +52,40 @@ jobs:
           java-version: 26
           cache: maven
 
+      - name: Unit and architecture tests
+        run: ./mvnw -B -ntp test -DexcludedGroups=integration
+
+      - name: Upload test reports
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: unit-reports
+          path: revtech-app/target/surefire-reports
+
+  # Tests tagged @Tag("integration") need the live MySQL.
+  integration:
+    name: integration
+    needs: unit
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v5
+
+      # Boots while Java is set up; the wait happens right before the tests.
       - name: Start MySQL
+        run: docker compose up -d mysql
+
+      - uses: actions/setup-java@v5
+        with:
+          distribution: oracle
+          java-version: 26
+          cache: maven
+
+      - name: Wait for MySQL
         run: docker compose up -d --wait mysql
 
-      - name: Build and test
-        run: ./mvnw -B -ntp verify
+      - name: Integration tests
+        run: ./mvnw -B -ntp test -Dgroups=integration
 
       - name: MySQL logs
         if: failure()
@@ -65,5 +95,5 @@ jobs:
         if: failure()
         uses: actions/upload-artifact@v4
         with:
-          name: surefire-reports
+          name: integration-reports
           path: revtech-app/target/surefire-reports

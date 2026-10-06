@@ -142,10 +142,13 @@ gh stack sync --prune
 ```
 
 ### CI Gate (`.github/workflows/ci.yml`)
-- Every PR (any base branch, drafts included) runs the `test` job: MySQL via `docker compose up -d --wait mysql`, then `./mvnw -B -ntp verify`.
-- `test` only runs when code changes (`revtech-app/src/**`, poms, `mvnw`/`.mvn`, `docker-compose.yml`, `docker/**`, `ci.yml`); otherwise it is skipped, which still satisfies the required check. Update the `changes` filter when adding build-relevant paths.
-- The `main` ruleset requires `test` to pass and the PR to be up to date with `main`; run `gh stack sync` / `gh stack rebase` when GitHub reports it is behind.
-- Do not merge a stack until `test` is green on every PR in it. Merge up to the **top** PR: its run tests the combined code of all layers.
+- Every PR (any base branch, drafts included) runs two sequential jobs (fail early):
+  - `unit`: everything without a database, ArchUnit included (`./mvnw test -DexcludedGroups=integration`).
+  - `integration`: only after `unit` passes; starts MySQL via docker compose and runs the tests tagged `@Tag("integration")` (`./mvnw test -Dgroups=integration`).
+- Tag any new test that needs MySQL with `@Tag("integration")`; untagged tests must not need a database.
+- Both jobs only run when code changes (`revtech-app/src/**`, poms, `mvnw`/`.mvn`, `docker-compose.yml`, `docker/**`, `ci.yml`); otherwise they are skipped, which still satisfies the required checks. Update the `changes` filter when adding build-relevant paths.
+- The `main` ruleset requires `unit` and `integration` to pass and the PR to be up to date with `main`; run `gh stack sync` / `gh stack rebase` when GitHub reports it is behind.
+- Do not merge a stack until `unit` and `integration` are green on every PR in it. Merge up to the **top** PR: its run tests the combined code of all layers.
 
 ---
 
