@@ -30,7 +30,7 @@ class HexagonalArchitectureTest {
     static final String BASE = "org.parangaricutirimicuaro.revtech";
 
     /** Contextos acotados implementados. Agregar un contexto nuevo es agregar su nombre aquí. */
-    static final List<String> CONTEXTOS = List.of("inspeccion");
+    static final List<String> CONTEXTOS = List.of("inspeccion", "clientes");
 
     @ArchTest
     static final ArchRule capas_hexagonales = onionArchitecture()
