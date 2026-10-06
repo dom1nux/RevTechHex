@@ -60,24 +60,12 @@ class UsuarioApplicationServiceTest {
         assertThatThrownBy(() -> registrar("carla", 3L)).isInstanceOf(ReglaIdentidadVioladaException.class);
     }
 
-    @Test
-    @DisplayName("Suspende a un usuario existente")
-    void suspender() {
-        Usuario creado = registrar("dario", 2L);
-
-        assertThat(service.suspender(creado.getId().valor()).isEstadoActivo()).isFalse();
-        assertThatThrownBy(() -> service.suspender(999L)).isInstanceOf(RecursoIdentidadNoEncontradoException.class);
-    }
-
     private static final class UsuariosEnMemoria implements UsuarioRepositoryPort {
 
         private final List<Usuario> usuarios = new ArrayList<>();
 
         @Override
         public Usuario guardar(Usuario u) {
-            if (u.getId() != null) {
-                return u;
-            }
             Usuario guardado = Usuario.reconstituir(UsuarioId.of(usuarios.size() + 1L), u.getUsername(),
                     u.getPasswordHash(), u.getRolActivo(), u.isEstadoActivo());
             usuarios.add(guardado);
@@ -90,13 +78,8 @@ class UsuarioApplicationServiceTest {
         }
 
         @Override
-        public Optional<Usuario> buscarPorUsername(String username) {
-            return usuarios.stream().filter(u -> u.getUsername().equals(username)).findFirst();
-        }
-
-        @Override
         public boolean existePorUsername(String username) {
-            return buscarPorUsername(username).isPresent();
+            return usuarios.stream().anyMatch(u -> u.getUsername().equals(username));
         }
     }
 }

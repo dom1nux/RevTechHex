@@ -53,15 +53,6 @@ class VehiculoApplicationServiceTest {
         assertThat(service.buscarPorId(99L)).isEmpty();
     }
 
-    @Test
-    @DisplayName("Lista los vehículos de un cliente")
-    void listarPorCliente() {
-        Vehiculo propio = crear(5L, "P1A-100", CategoriaVehiculo.M1);
-        crear(6L, "P1A-200", CategoriaVehiculo.M1);
-
-        assertThat(service.listarPorCliente(5L)).containsExactly(propio);
-    }
-
     private static final class EnMemoria implements VehiculoRepositoryPort {
 
         private final List<Vehiculo> vehiculos = new ArrayList<>();
@@ -82,11 +73,6 @@ class VehiculoApplicationServiceTest {
         @Override
         public Optional<Vehiculo> buscarPorPlaca(String placa) {
             return vehiculos.stream().filter(v -> v.getPlaca().equals(placa)).findFirst();
-        }
-
-        @Override
-        public List<Vehiculo> listarPorPropietario(ClienteId propietario) {
-            return vehiculos.stream().filter(v -> v.getPropietario().equals(propietario)).toList();
         }
     }
 }

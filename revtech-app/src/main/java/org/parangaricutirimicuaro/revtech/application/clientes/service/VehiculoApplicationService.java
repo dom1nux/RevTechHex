@@ -7,7 +7,6 @@ import org.parangaricutirimicuaro.revtech.domain.clientes.model.ClienteId;
 import org.parangaricutirimicuaro.revtech.domain.clientes.model.Vehiculo;
 import org.parangaricutirimicuaro.revtech.domain.clientes.model.VehiculoId;
 
-import java.util.List;
 import java.util.Optional;
 
 public class VehiculoApplicationService implements CrearVehiculoUseCase, ConsultarVehiculoUseCase {
@@ -38,10 +37,5 @@ public class VehiculoApplicationService implements CrearVehiculoUseCase, Consult
     @Override
     public Optional<Vehiculo> buscarPorPlaca(String placa) {
         return repository.buscarPorPlaca(placa);
-    }
-
-    @Override
-    public List<Vehiculo> listarPorCliente(Long clienteId) {
-        return repository.listarPorPropietario(ClienteId.of(clienteId));
     }
 }

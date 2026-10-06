@@ -11,7 +11,5 @@ public interface UsuarioRepositoryPort {
 
     Optional<Usuario> buscarPorId(UsuarioId id);
 
-    Optional<Usuario> buscarPorUsername(String username);
-
     boolean existePorUsername(String username);
 }
