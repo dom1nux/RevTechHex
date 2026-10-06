@@ -1,51 +1,43 @@
 # AGENTS.md
 
-Operational guidance for autonomous AI agents working in `RevTech-Aggregates`.
+Operational guidance for autonomous AI agents working in `RevTech`.
 
 ---
 
 ## 1. Project Architecture & Boundaries
 
-- **Architecture:** Spring Boot 4.1.1 multi-module Maven reactor on Java 26 (Oracle JDK 26+), Spring Cloud 2025.1.3.
-- **Trunk Branch:** `master` (not `main`).
+- **Architecture:** Hexagonal modular monolith. Spring Boot 4.1.1 on Java 26 (Oracle JDK 26+), Spring Cloud 2025.1.3 (OpenFeign, used only for the external MTC system).
+- **Trunk Branch:** `main`.
 - **Domain Contexts (DDD):** Reference specifications live in `docs/DISEÑO TÁCTICO - REVTECH.md`.
-- **Submodules (Gateway + Microservices):**
-  - `msvc-gateway` (`org.parangaricutirimicuaro.springcloud.msvc.gateway`) - Single Entrypoint / API Gateway (Port 8000)
-  - `msvc-inspection` (`org.parangaricutirimicuaro.msvc_inspection`) - Core Bounded Context (Port 8080)
-  - `msvc-clientes` (`org.parangaricutirimicuaro.msvc_clientes`) - Client & Vehicle Support Service (Port 8081)
-  - `msvc-identidad` (`org.parangaricutirimicuaro.msvc_identidad`) - Identity & Access Support Service (Port 8082)
-  - `msvc-administrativa` (`org.parangaricutirimicuaro.msvc_administrativa`)
-  - `msvc-citas` (`org.parangaricutirimicuaro.msvc_citas`)
-  - `msvc-pagos` (`org.parangaricutirimicuaro.msvc_pagos`)
-- **Package Layout — `msvc-inspection` (Hexagonal / Ports & Adapters):** see `docs/ARQUITECTURA-HEXAGONAL-INSPECCION.md`.
-  - `domain/model/` - Aggregate root `InspeccionTecnica`, internal entities, value objects (records), typed IDs and catalog enums. Pure Java: no Spring, JPA or Lombok.
-  - `domain/event/` - Domain events (`InspeccionFinalizada`), recorded by the aggregate and published after persisting
-  - `domain/exception/` - Domain rule violations
-  - `application/port/in/` - Use-case interfaces (one per use case) and their command records
-  - `application/port/out/` - Outbound ports (repository, vehicle, user, MTC)
-  - `application/service/` - Use-case implementation; Spring-free, wired in `config/`
-  - `adapter/in/web/` - REST controller, request/response DTOs, `@RestControllerAdvice`
-  - `adapter/in/event/` - Spring `@EventListener`s that route domain events to use cases
-  - `adapter/out/event/` - Domain event publisher (Spring `ApplicationEventPublisher`)
-  - `adapter/out/persistence/` - JPA entities, Spring Data repository, domain↔JPA mapper
-  - `adapter/out/client/` - Feign & Mock clients (`revtech.clients.mock`) and their port adapters
-  - `config/` - Composition root (bean wiring, Feign, Scalar)
-  - Dependency rule (adapters → application → domain) is enforced by `HexagonalArchitectureTest` (ArchUnit).
-- **Package Layout — remaining microservices (layered):**
-  - `model/entity/` - JPA Entities
-  - `model/value/` - Value Objects (Embeddables / Records)
-  - `model/type/` - Enums and domain type descriptors
-  - `model/dto/` - DTOs for external boundaries / REST requests & responses
-  - `repository/` - Spring Data JPA repositories
-  - `service/` & `service/impl/` - Domain & application service layer
-  - `controller/` - REST Controllers
+- **Module:** `revtech-app` (`org.parangaricutirimicuaro.revtech`) - the single deployable (Port 8000). It serves every `/api/**` endpoint, CORS and the Scalar portal.
+- **Implemented bounded contexts:** `inspeccion` (core), `clientes` (clients & vehicles), `identidad` (identity & access). `citas`, `pagos` and `administrativa` are not implemented yet; add them as new context sub-packages following the same layout.
+- **Package Layout (hybrid: layer first, bounded context second):** see `docs/ARQUITECTURA-HEXAGONAL.md`.
+  - `domain/<contexto>/` - Aggregates, entities, value objects (records), typed IDs, enums, domain events and exceptions. Pure Java: no Spring, JPA or Lombok.
+  - `application/<contexto>/port/in/` - Use-case interfaces (one per use case) and their command records
+  - `application/<contexto>/port/out/` - Outbound ports (repositories, other contexts, MTC, event publisher)
+  - `application/<contexto>/service/` - Use-case implementations; Spring-free, wired in `config/<contexto>/`
+  - `adapter/in/web/<contexto>/` - REST controllers and request/response DTOs
+  - `adapter/in/web/shared/` - `GlobalExceptionHandler` (Problem Details for every context)
+  - `adapter/in/event/<contexto>/` - Spring `@EventListener`s that route domain events to use cases
+  - `adapter/out/event/<contexto>/` - Domain event publisher (Spring `ApplicationEventPublisher`)
+  - `adapter/out/persistence/<contexto>/` - JPA entities, Spring Data repositories, domain↔JPA mappers
+  - `adapter/out/integration/<contexto>/` - In-process bridges: implement this context's outbound port by calling another context's **inbound port**
+  - `adapter/out/client/` - External systems (MTC): Feign & Mock clients (`revtech.clients.mock`) and their port adapters
+  - `config/<contexto>/` - Per-context composition root (bean wiring); `config/` holds global Feign, Scalar and CORS setup
+- **Rules enforced by `HexagonalArchitectureTest` (ArchUnit):**
+  - Adapters → application → domain; domain and application stay framework-free.
+  - A context's `domain`/`application` never imports another context's `domain`/`application`.
+  - Only `adapter.out.integration` may cross contexts, and only through `application.<otro>.port.in`.
+  - When adding a context, append its name to `CONTEXTOS` in that test.
 
 ---
 
 ## 2. Environment & Database Gotchas
 
-- **MySQL 8.4 LTS:** Microservices expect dedicated MySQL databases and distinct credentials (defined in `docker-compose.yml` and provisioned by `docker/mysql/init-databases.sql`).
-- **Live Database Dependency for Tests:** Standard Spring Boot tests (`@SpringBootTest contextLoads()`) require the live MySQL container running on port `3306`.
+- **MySQL 8.4 LTS:** One `revtech` database and `revtech_user` (defined in `docker-compose.yml` and provisioned by `docker/mysql/init-databases.sql`). Each context owns its own tables inside it.
+- **Schema:** Generated by Hibernate (`ddl-auto=update`); there are no migrations yet.
+- **Existing volumes:** `init-databases.sql` only runs on a fresh volume. An older volume still has the per-service databases; run `mise run db:recreate` (destructive) or execute the script as root.
+- **Live Database Dependency for Tests:** `RevTechApplicationTests` and `InspeccionPersistenceAdapterTest` require the live MySQL container on port `3306`.
 - **Start Local DB:**
   ```powershell
   docker compose up -d mysql
@@ -66,16 +58,13 @@ mise run db:down
 mise run db:logs
 mise run db:recreate   # DESTRUCTIVE: wipes the MySQL volume and re-runs init-databases.sql
 
-# Run a targeted microservice locally on host (default: msvc-inspection)
-mise run dev msvc-inspection
-mise run dev msvc-clientes
-mise run dev msvc-identidad
-mise run dev msvc-gateway
+# Run revtech-app locally on host (port 8000)
+mise run dev
 
-# Build OCI container images with Paketo Cloud Native Buildpacks
+# Build the OCI container image with Paketo Cloud Native Buildpacks
 mise run app:build
 
-# Full containerized stack (MySQL + all microservices + API Gateway)
+# Full containerized stack (MySQL + revtech-app)
 mise run app:up
 mise run app:down
 mise run app:logs
@@ -89,23 +78,20 @@ mise run package
 
 ### Direct Maven Commands (`./mvnw`)
 ```powershell
-# Compile all microservices
+# Compile
 ./mvnw clean compile
 
-# Compile a targeted microservice (fast feedback)
-./mvnw compile -pl msvc-identidad
-
-# Package everything without executing integration tests
+# Package without executing tests
 ./mvnw package -DskipTests
 
-# Run tests on a single service (requires docker mysql up)
-./mvnw test -pl msvc-identidad
+# Run all tests (requires docker mysql up)
+./mvnw test -pl revtech-app
 
 # Run single targeted test class
-./mvnw test -pl msvc-identidad -Dtest=UsuarioRepositoryTest
+./mvnw test -pl revtech-app -Dtest=HexagonalArchitectureTest
 
-# Run a single service locally
-./mvnw spring-boot:run -pl msvc-identidad
+# Run the application locally
+./mvnw spring-boot:run -pl revtech-app
 ```
 
 ---
@@ -147,7 +133,7 @@ gh stack add feat/nueva-capa
 # Push and create/update chained PRs on GitHub
 gh stack submit --auto --open
 
-# Merge stack to master and prune local/remote merged branches
+# Merge stack to main and prune local/remote merged branches
 gh stack merge <target_pr_or_stack> --yes --merge
 gh stack sync --prune
 ```
@@ -158,4 +144,4 @@ gh stack sync --prune
 
 - Follow Conventional Commits format in English:
   `feat:`, `fix:`, `refactor:`, `build:`, `docs:`, `chore:`
-- Use imperative mood, lowercase subject: e.g., `feat: add msvc-clientes domain entities and crud repositories`.
+- Use imperative mood, lowercase subject: e.g., `feat: add citas context domain and use cases`.
