@@ -107,7 +107,7 @@ Never execute bare commands that trigger interactive TUIs or prompts. Always sup
 |---|---|---|
 | `gh stack view --json` or `--short` | `gh stack view` | Opens interactive TUI |
 | `gh stack submit --auto --open` | `gh stack submit` | Interactive title prompt |
-| `gh stack merge <target> --yes --merge` | `gh pr merge` | Cannot handle stacked PR tree |
+| `gh stack merge <target> --yes --rebase` | `gh pr merge` | Cannot handle stacked PR tree; rebase keeps `main` linear (only rebase merging is enabled) |
 | `gh stack add <branch>` | - | Must be run from stack top (`gh stack top`) |
 
 ### Daily Stack Workflow
@@ -134,7 +134,7 @@ gh stack add feat/nueva-capa
 gh stack submit --auto --open
 
 # Merge stack to main and prune local/remote merged branches
-gh stack merge <target_pr_or_stack> --yes --merge
+gh stack merge <target_pr_or_stack> --yes --rebase
 gh stack sync --prune
 ```
 
