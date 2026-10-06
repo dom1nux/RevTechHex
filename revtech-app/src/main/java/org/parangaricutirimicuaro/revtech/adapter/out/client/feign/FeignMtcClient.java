@@ -7,6 +7,9 @@ import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
+/**
+ * Cliente HTTP real del MTC, generado por OpenFeign. Activo cuando {@code revtech.clients.mock=false}.
+ */
 @FeignClient(name = "mtc-service", url = "${clients.mtc.url:http://localhost:8089}")
 @ConditionalOnProperty(name = "revtech.clients.mock", havingValue = "false")
 public interface FeignMtcClient extends MtcClient {

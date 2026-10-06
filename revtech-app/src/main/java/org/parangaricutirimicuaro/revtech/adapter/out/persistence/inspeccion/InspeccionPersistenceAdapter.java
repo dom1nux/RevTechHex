@@ -8,6 +8,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
 
+/**
+ * Adaptador de salida: implementa {@code InspeccionRepositoryPort} con JPA, traduciendo entre el agregado y sus entidades JPA.
+ */
 @Component
 public class InspeccionPersistenceAdapter implements InspeccionRepositoryPort {
 
