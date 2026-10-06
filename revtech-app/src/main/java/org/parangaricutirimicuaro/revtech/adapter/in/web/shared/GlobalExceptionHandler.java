@@ -3,6 +3,7 @@ package org.parangaricutirimicuaro.revtech.adapter.in.web.shared;
 import org.parangaricutirimicuaro.revtech.application.inspeccion.exception.ReferenciaExternaInvalidaException;
 import org.parangaricutirimicuaro.revtech.application.inspeccion.exception.ServicioExternoNoDisponibleException;
 import org.parangaricutirimicuaro.revtech.domain.clientes.exception.DatoClienteInvalidoException;
+import org.parangaricutirimicuaro.revtech.domain.clientes.exception.ReglaClienteVioladaException;
 import org.parangaricutirimicuaro.revtech.domain.identidad.exception.DatoIdentidadInvalidoException;
 import org.parangaricutirimicuaro.revtech.domain.identidad.exception.RecursoIdentidadNoEncontradoException;
 import org.parangaricutirimicuaro.revtech.domain.identidad.exception.ReglaIdentidadVioladaException;
@@ -38,6 +39,11 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(DatoClienteInvalidoException.class)
     ProblemDetail handleDatoClienteInvalido(DatoClienteInvalidoException e) {
         return problem(HttpStatus.BAD_REQUEST, "Dato inválido", e.getMessage());
+    }
+
+    @ExceptionHandler(ReglaClienteVioladaException.class)
+    ProblemDetail handleReglaCliente(ReglaClienteVioladaException e) {
+        return problem(HttpStatus.CONFLICT, "Regla de negocio violada", e.getMessage());
     }
 
     @ExceptionHandler(DatoIdentidadInvalidoException.class)

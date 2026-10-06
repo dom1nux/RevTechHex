@@ -31,7 +31,14 @@ public class Cliente {
     }
 
     /**
-     * Recrea un cliente ya persistido. Los clientes se registran directamente en la base de datos.
+     * Registra un cliente nuevo; su identificador lo asigna el almacenamiento al persistirlo.
+     */
+    public static Cliente registrar(String docIdent, String nombre, LocalDateTime fechaRegistro) {
+        return new Cliente(null, docIdent, nombre, fechaRegistro);
+    }
+
+    /**
+     * Recrea un cliente ya persistido.
      */
     public static Cliente reconstituir(ClienteId id, String docIdent, String nombre, LocalDateTime fechaRegistro) {
         if (id == null) {
