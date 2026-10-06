@@ -1,6 +1,7 @@
 package org.parangaricutirimicuaro.revtech.adapter.out.persistence.identidad;
 
 import org.parangaricutirimicuaro.revtech.application.identidad.port.out.RolAccesoRepositoryPort;
+import org.parangaricutirimicuaro.revtech.domain.identidad.model.NombreRol;
 import org.parangaricutirimicuaro.revtech.domain.identidad.model.RolAcceso;
 import org.parangaricutirimicuaro.revtech.domain.identidad.model.RolId;
 import org.springframework.stereotype.Component;
@@ -19,6 +20,17 @@ public class RolAccesoPersistenceAdapter implements RolAccesoRepositoryPort {
 
     RolAccesoPersistenceAdapter(SpringDataRolAccesoRepository repository) {
         this.repository = repository;
+    }
+
+    @Override
+    @Transactional
+    public RolAcceso guardar(RolAcceso rol) {
+        return IdentidadPersistenceMapper.toDomain(repository.save(IdentidadPersistenceMapper.toEntity(rol)));
+    }
+
+    @Override
+    public boolean existePorNombre(NombreRol nombreRol) {
+        return repository.existsByNombreRol(nombreRol);
     }
 
     @Override

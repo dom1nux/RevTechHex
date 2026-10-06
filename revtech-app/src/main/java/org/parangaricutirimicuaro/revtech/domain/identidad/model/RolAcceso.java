@@ -5,7 +5,7 @@ import org.parangaricutirimicuaro.revtech.domain.identidad.exception.DatoIdentid
 import java.util.List;
 
 /**
- * Rol de acceso con su conjunto de permisos. Los roles se administran directamente en la base de datos.
+ * Rol de acceso con su conjunto de permisos.
  */
 public class RolAcceso {
 
@@ -22,6 +22,13 @@ public class RolAcceso {
         this.nombreRol = nombreRol;
         this.permisos = permisos == null ? List.of() : List.copyOf(permisos);
         this.estadoActivo = estadoActivo;
+    }
+
+    /**
+     * Da de alta un rol nuevo, activo desde su creación; su identificador lo asigna el almacenamiento.
+     */
+    public static RolAcceso registrar(NombreRol nombreRol, List<String> permisos) {
+        return new RolAcceso(null, nombreRol, permisos, true);
     }
 
     /**

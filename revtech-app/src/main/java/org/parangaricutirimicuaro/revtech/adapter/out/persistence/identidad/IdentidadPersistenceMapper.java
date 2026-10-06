@@ -7,6 +7,8 @@ import org.parangaricutirimicuaro.revtech.domain.identidad.model.RolId;
 import org.parangaricutirimicuaro.revtech.domain.identidad.model.Usuario;
 import org.parangaricutirimicuaro.revtech.domain.identidad.model.UsuarioId;
 
+import java.util.ArrayList;
+
 /**
  * Traduce usuarios y roles de dominio a su representación JPA y viceversa.
  */
@@ -28,6 +30,15 @@ final class IdentidadPersistenceMapper {
     static Usuario toDomain(UsuarioJpaEntity entity) {
         return Usuario.reconstituir(UsuarioId.of(entity.getIdUsuario()), entity.getUsername(),
                 entity.getPasswordHash(), RolId.ofNullable(entity.getRolActivoId()), entity.isEstadoActivo());
+    }
+
+    static RolAccesoJpaEntity toEntity(RolAcceso rol) {
+        RolAccesoJpaEntity entity = new RolAccesoJpaEntity();
+        entity.setIdRol(rol.getId() != null ? rol.getId().valor() : null);
+        entity.setNombreRol(rol.getNombreRol());
+        entity.setPermisos(new ArrayList<>(rol.getPermisos()));
+        entity.setEstadoActivo(rol.isEstadoActivo());
+        return entity;
     }
 
     static RolAcceso toDomain(RolAccesoJpaEntity entity) {
