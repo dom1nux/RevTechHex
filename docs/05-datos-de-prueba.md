@@ -34,8 +34,9 @@ Necesitas una base **vacía** y la app corriendo contra ella. Ojo: `mise run db:
 mise run db:recreate       # base vacía
 mise run dev               # crea el esquema; déjala corriendo
 ./infra/seed/seed.ps1      # llama a la API (actúa como administrador; no hay autenticación todavía)
+# o, con curl (Git Bash/Linux/macOS):  ./infra/seed/seed.sh
 mise run db:dump-seed      # reescribe infra/mysql/seed-data.sql
 ```
 
-`seed.ps1` usa datos fijos (sin azar), por lo que el resultado es reproducible. El volcado es solo de datos
+`seed.ps1` y `seed.sh` hacen lo mismo (mismos datos, la primera con PowerShell y la segunda con `curl`). Usan datos fijos (sin azar), por lo que el resultado es reproducible. El volcado es solo de datos
 (`--no-create-info`, un `INSERT` por fila): el esquema sigue siendo de Hibernate. Revisa el diff antes de hacer commit.
