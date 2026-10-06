@@ -43,7 +43,7 @@ services:
       - revtech-network
 
   msvc-inspection:
-    image: msvc-inspection:0.0.1-SNAPSHOT
+    image: revtech-app:0.0.1-SNAPSHOT
     container_name: revtech-msvc-inspection
     restart: unless-stopped
     ports:

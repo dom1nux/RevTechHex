@@ -10,7 +10,7 @@
     </parent>
     <packaging>pom</packaging>
     <modules>
-        <module>msvc-inspection</module>
+        <module>revtech-app</module>
         <module>msvc-clientes</module>
         <module>msvc-identidad</module>
         <module>msvc-gateway</module>
