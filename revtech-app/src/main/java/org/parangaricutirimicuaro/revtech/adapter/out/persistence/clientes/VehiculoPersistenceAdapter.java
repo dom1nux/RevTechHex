@@ -8,6 +8,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
 
+/**
+ * Adaptador de salida: implementa {@code VehiculoRepositoryPort} con JPA.
+ */
 @Component
 @Transactional(readOnly = true)
 public class VehiculoPersistenceAdapter implements VehiculoRepositoryPort {

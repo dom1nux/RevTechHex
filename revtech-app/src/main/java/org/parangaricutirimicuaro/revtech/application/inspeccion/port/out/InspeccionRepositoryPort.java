@@ -5,6 +5,9 @@ import org.parangaricutirimicuaro.revtech.domain.inspeccion.model.InspeccionTecn
 
 import java.util.Optional;
 
+/**
+ * Puerto de salida: guarda y recupera el agregado {@code InspeccionTecnica} sin que la aplicación sepa que existe JPA.
+ */
 public interface InspeccionRepositoryPort {
 
     InspeccionTecnica guardar(InspeccionTecnica inspeccion);

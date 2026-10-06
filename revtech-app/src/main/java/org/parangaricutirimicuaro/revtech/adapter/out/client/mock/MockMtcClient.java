@@ -9,6 +9,9 @@ import org.springframework.stereotype.Component;
 
 import java.util.UUID;
 
+/**
+ * MTC simulado en memoria: registra la notificación en el log. Activo por defecto ({@code revtech.clients.mock=true}).
+ */
 @Component
 @ConditionalOnProperty(name = "revtech.clients.mock", havingValue = "true", matchIfMissing = true)
 public class MockMtcClient implements MtcClient {

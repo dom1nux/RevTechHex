@@ -8,6 +8,9 @@ import org.parangaricutirimicuaro.revtech.domain.inspeccion.model.InspeccionTecn
 import org.parangaricutirimicuaro.revtech.domain.inspeccion.model.PeriodoInspeccion;
 import org.parangaricutirimicuaro.revtech.domain.inspeccion.model.PersonalId;
 
+/**
+ * Convierte el agregado {@code InspeccionTecnica} en el JSON de respuesta, para que el dominio no dependa del formato web.
+ */
 final class InspeccionWebMapper {
 
     private InspeccionWebMapper() {

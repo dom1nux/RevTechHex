@@ -13,6 +13,9 @@ import org.parangaricutirimicuaro.revtech.domain.identidad.model.UsuarioId;
 
 import java.util.Optional;
 
+/**
+ * Servicio de aplicación de usuarios: implementa los casos de uso usando solo puertos. Se registra como bean en {@code IdentidadConfig}.
+ */
 public class UsuarioApplicationService implements RegistrarUsuarioUseCase, ConsultarUsuarioUseCase {
 
     private final UsuarioRepositoryPort usuarios;

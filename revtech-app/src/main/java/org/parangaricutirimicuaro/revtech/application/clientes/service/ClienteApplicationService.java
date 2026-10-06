@@ -7,6 +7,9 @@ import org.parangaricutirimicuaro.revtech.domain.clientes.model.ClienteId;
 
 import java.util.Optional;
 
+/**
+ * Servicio de aplicación de clientes: implementa los casos de uso usando solo puertos. Se registra como bean en {@code ClientesConfig}.
+ */
 public class ClienteApplicationService implements ConsultarClienteUseCase {
 
     private final ClienteRepositoryPort repository;

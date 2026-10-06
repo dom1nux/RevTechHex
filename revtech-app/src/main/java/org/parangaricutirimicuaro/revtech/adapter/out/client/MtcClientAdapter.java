@@ -5,6 +5,9 @@ import org.parangaricutirimicuaro.revtech.domain.inspeccion.model.CondicionInspe
 import org.parangaricutirimicuaro.revtech.domain.inspeccion.model.InspeccionId;
 import org.springframework.stereotype.Component;
 
+/**
+ * Adaptador de salida: implementa {@code MtcPort} delegando en el {@code MtcClient} activo.
+ */
 @Component
 public class MtcClientAdapter implements MtcPort {
 

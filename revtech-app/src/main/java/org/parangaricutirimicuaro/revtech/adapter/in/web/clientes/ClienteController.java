@@ -8,6 +8,9 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+/**
+ * Adaptador de entrada: expone los casos de uso de clientes en {@code /api/clientes}.
+ */
 @RestController
 @RequestMapping("/api/clientes")
 public class ClienteController {

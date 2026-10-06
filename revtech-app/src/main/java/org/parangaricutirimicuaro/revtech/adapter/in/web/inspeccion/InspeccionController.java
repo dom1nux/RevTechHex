@@ -18,6 +18,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+/**
+ * Adaptador de entrada: traduce las peticiones HTTP de {@code /api/inspecciones} en llamadas a los casos de uso de Inspección.
+ */
 @RestController
 @RequestMapping("/api/inspecciones")
 @Tag(name = "Inspección Técnica Vehicular", description = "Endpoints para la gestión del flujo core de inspecciones técnicas vehiculares")

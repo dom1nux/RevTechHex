@@ -9,6 +9,9 @@ import org.parangaricutirimicuaro.revtech.domain.clientes.model.VehiculoId;
 
 import java.util.Optional;
 
+/**
+ * Servicio de aplicación de vehículos: implementa los casos de uso usando solo puertos. Se registra como bean en {@code ClientesConfig}.
+ */
 public class VehiculoApplicationService implements CrearVehiculoUseCase, ConsultarVehiculoUseCase {
 
     private final VehiculoRepositoryPort repository;

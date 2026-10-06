@@ -10,6 +10,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+/**
+ * Adaptador de entrada: expone los casos de uso de usuarios en {@code /api/usuarios}.
+ */
 @RestController
 @RequestMapping("/api/usuarios")
 public class UsuarioController {

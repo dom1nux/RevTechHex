@@ -5,6 +5,9 @@ import org.parangaricutirimicuaro.revtech.domain.clientes.model.VehiculoId;
 
 import java.util.Optional;
 
+/**
+ * Puerto de salida: guarda y recupera vehículos desde el almacenamiento.
+ */
 public interface VehiculoRepositoryPort {
 
     Vehiculo guardar(Vehiculo vehiculo);
