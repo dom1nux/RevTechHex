@@ -1,0 +1,94 @@
+include:
+  - docker-compose.yml
+
+services:
+  msvc-clientes:
+    image: msvc-clientes:0.0.1-SNAPSHOT
+    container_name: revtech-msvc-clientes
+    restart: unless-stopped
+    ports:
+      - "${CLIENTES_SERVER_PORT:-8081}:8081"
+    environment:
+      SERVER_PORT: 8081
+      DB_HOST: mysql
+      DB_PORT: 3306
+      DB_NAME: clientes
+      DB_USER: clientes_user
+      DB_PASSWORD: ${CLIENTES_DB_PASSWORD:-clientes_pass}
+      SPRING_THREADS_VIRTUAL_ENABLED: ${SPRING_THREADS_VIRTUAL_ENABLED:-true}
+    depends_on:
+      mysql:
+        condition: service_healthy
+    networks:
+      - revtech-network
+
+  msvc-identidad:
+    image: msvc-identidad:0.0.1-SNAPSHOT
+    container_name: revtech-msvc-identidad
+    restart: unless-stopped
+    ports:
+      - "${IDENTIDAD_SERVER_PORT:-8082}:8082"
+    environment:
+      SERVER_PORT: 8082
+      DB_HOST: mysql
+      DB_PORT: 3306
+      DB_NAME: identidad
+      DB_USER: identidad_user
+      DB_PASSWORD: ${IDENTIDAD_DB_PASSWORD:-identidad_pass}
+      SPRING_THREADS_VIRTUAL_ENABLED: ${SPRING_THREADS_VIRTUAL_ENABLED:-true}
+    depends_on:
+      mysql:
+        condition: service_healthy
+    networks:
+      - revtech-network
+
+  msvc-inspection:
+    image: msvc-inspection:0.0.1-SNAPSHOT
+    container_name: revtech-msvc-inspection
+    restart: unless-stopped
+    ports:
+      - "${INSPECTION_SERVER_PORT:-8080}:8080"
+    environment:
+      SERVER_PORT: 8080
+      DB_HOST: mysql
+      DB_PORT: 3306
+      DB_NAME: inspection
+      DB_USER: inspection_user
+      DB_PASSWORD: ${INSPECTION_DB_PASSWORD:-inspection_pass}
+      REVTECH_CLIENTS_MOCK: ${REVTECH_CLIENTS_MOCK:-false}
+      CLIENTS_MSVC_CLIENTES_URL: http://msvc-clientes:8081
+      CLIENTS_MSVC_IDENTIDAD_URL: http://msvc-identidad:8082
+      CLIENTS_MTC_URL: ${CLIENTS_MTC_URL:-http://localhost:8089}
+      SPRING_THREADS_VIRTUAL_ENABLED: ${SPRING_THREADS_VIRTUAL_ENABLED:-true}
+    depends_on:
+      mysql:
+        condition: service_healthy
+      msvc-clientes:
+        condition: service_started
+      msvc-identidad:
+        condition: service_started
+    networks:
+      - revtech-network
+
+  msvc-gateway:
+    image: msvc-gateway:0.0.1-SNAPSHOT
+    container_name: revtech-msvc-gateway
+    restart: unless-stopped
+    ports:
+      - "${GATEWAY_SERVER_PORT:-8000}:8000"
+    environment:
+      SERVER_PORT: 8000
+      INSPECTION_SERVICE_URL: http://msvc-inspection:8080
+      CLIENTES_SERVICE_URL: http://msvc-clientes:8081
+      IDENTIDAD_SERVICE_URL: http://msvc-identidad:8082
+      CORS_ALLOWED_ORIGINS: ${CORS_ALLOWED_ORIGINS:-http://localhost:3000,http://localhost:5173,http://localhost:4200}
+      SPRING_THREADS_VIRTUAL_ENABLED: ${SPRING_THREADS_VIRTUAL_ENABLED:-true}
+    depends_on:
+      msvc-inspection:
+        condition: service_started
+      msvc-clientes:
+        condition: service_started
+      msvc-identidad:
+        condition: service_started
+    networks:
+      - revtech-network

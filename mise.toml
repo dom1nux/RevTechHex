@@ -1,0 +1,61 @@
+# mise configuration for RevTech Microservices Monorepo
+
+[tasks."db:up"]
+description = "Inicia el contenedor de base de datos MySQL 8.4 LTS"
+run = "docker compose up -d mysql"
+
+[tasks."db:down"]
+description = "Detiene el contenedor de base de datos MySQL"
+run = "docker compose down"
+
+[tasks."db:recreate"]
+description = "Elimina el volumen de MySQL y recrea todas las bases desde init-databases.sql (BORRA LOS DATOS)"
+run = ["docker compose down -v", "docker compose up -d mysql"]
+
+[tasks."db:logs"]
+description = "Muestra los logs en tiempo real del contenedor MySQL"
+run = "docker compose logs -f mysql"
+
+[tasks.dev]
+description = "Ejecuta un microservicio local en el host (ej: mise run dev msvc-inspection)"
+run = "./mvnw spring-boot:run -pl :$usage_service"
+run_windows = "mvnw.cmd spring-boot:run -pl :%usage_service%"
+usage = '''
+arg "[service]" default="msvc-inspection" help="Nombre del microservicio a ejecutar"
+'''
+
+[tasks."app:build"]
+description = "Compila y empaqueta las imágenes OCI de todos los microservicios con Buildpacks"
+run = "./mvnw spring-boot:build-image -DskipTests"
+run_windows = "mvnw.cmd spring-boot:build-image -DskipTests"
+
+[tasks."app:up"]
+description = "Levanta todo el sistema completo (BD + Microservicios + API Gateway) en Docker"
+run = "docker compose -f docker-compose.full.yml up -d"
+
+[tasks."app:down"]
+description = "Detiene todos los contenedores de la plataforma completa"
+run = "docker compose -f docker-compose.full.yml down"
+
+[tasks."app:logs"]
+description = "Muestra los logs en tiempo real de todos los microservicios y del gateway"
+run = "docker compose -f docker-compose.full.yml logs -f"
+
+[tasks."app:restart"]
+description = "Reinicia todos los contenedores de la plataforma completa"
+run = "docker compose -f docker-compose.full.yml restart"
+
+[tasks.test]
+description = "Ejecuta las pruebas unitarias del reactor multimódulo Maven"
+run = "./mvnw test"
+run_windows = "mvnw.cmd test"
+
+[tasks.compile]
+description = "Compila todos los módulos del proyecto"
+run = "./mvnw clean compile"
+run_windows = "mvnw.cmd clean compile"
+
+[tasks.package]
+description = "Empaqueta los JARs de todos los módulos sin ejecutar tests"
+run = "./mvnw package -DskipTests"
+run_windows = "mvnw.cmd package -DskipTests"
