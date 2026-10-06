@@ -23,9 +23,26 @@ class UsuarioApplicationServiceTest {
     private static final RolId INACTIVO = RolId.of(3L);
 
     private final UsuariosEnMemoria usuarios = new UsuariosEnMemoria();
-    private final RolAccesoRepositoryPort roles = id -> Optional.ofNullable(Map.of(
-            INSPECTOR, RolAcceso.reconstituir(INSPECTOR, NombreRol.ROLE_INSPECTOR, List.of("REGISTRAR_PRUEBA"), true),
-            INACTIVO, RolAcceso.reconstituir(INACTIVO, NombreRol.ROLE_MECANICO, List.of(), false)).get(id));
+    private final RolAccesoRepositoryPort roles = new RolAccesoRepositoryPort() {
+        private final Map<RolId, RolAcceso> datos = Map.of(
+                INSPECTOR, RolAcceso.reconstituir(INSPECTOR, NombreRol.ROLE_INSPECTOR, List.of("REGISTRAR_PRUEBA"), true),
+                INACTIVO, RolAcceso.reconstituir(INACTIVO, NombreRol.ROLE_MECANICO, List.of(), false));
+
+        @Override
+        public RolAcceso guardar(RolAcceso rol) {
+            throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public boolean existePorNombre(NombreRol nombreRol) {
+            return datos.values().stream().anyMatch(r -> r.getNombreRol() == nombreRol);
+        }
+
+        @Override
+        public Optional<RolAcceso> buscarPorId(RolId id) {
+            return Optional.ofNullable(datos.get(id));
+        }
+    };
     private final UsuarioApplicationService service = new UsuarioApplicationService(usuarios, roles);
 
     private Usuario registrar(String username, Long rol) {

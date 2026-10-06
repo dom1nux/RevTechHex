@@ -2,6 +2,7 @@ package org.parangaricutirimicuaro.revtech.config.identidad;
 
 import org.parangaricutirimicuaro.revtech.application.identidad.port.out.RolAccesoRepositoryPort;
 import org.parangaricutirimicuaro.revtech.application.identidad.port.out.UsuarioRepositoryPort;
+import org.parangaricutirimicuaro.revtech.application.identidad.service.RolApplicationService;
 import org.parangaricutirimicuaro.revtech.application.identidad.service.UsuarioApplicationService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -15,5 +16,10 @@ public class IdentidadConfig {
     @Bean
     UsuarioApplicationService usuarioApplicationService(UsuarioRepositoryPort usuarios, RolAccesoRepositoryPort roles) {
         return new UsuarioApplicationService(usuarios, roles);
+    }
+
+    @Bean
+    RolApplicationService rolApplicationService(RolAccesoRepositoryPort roles) {
+        return new RolApplicationService(roles);
     }
 }
