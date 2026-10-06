@@ -107,3 +107,5 @@ Esta tabla es tu diccionario. Si en una reunión se habla de un concepto, aquí 
 ---
 
 **Siguiente:** [02 · Arquitectura](02-arquitectura.md) — cómo está organizado el código.
+
+<!-- canary -->
