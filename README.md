@@ -91,7 +91,7 @@ Para ejecutar el proyecto con un MySQL instalado directamente en el equipo, sin 
 
 ```powershell
 # 1. Crear la base de datos y el usuario (una sola vez; pide la contraseña de root)
-mysql -u root -p < docker/mysql/init-databases.sql
+mysql -u root -p < infra/mysql/init-databases.sql
 
 # 2. Levantar la aplicación (Windows; en Linux/macOS usar ./mvnw)
 mvnw.cmd spring-boot:run -pl revtech-app
@@ -103,7 +103,7 @@ Por defecto, la aplicación se conecta a `localhost:3306` con el usuario `revtec
 $env:DB_HOST="localhost"; $env:DB_PORT="3307"
 ```
 
-> **Volúmenes anteriores:** si tu volumen de MySQL se creó cuando el sistema eran microservicios, todavía no tiene la base `revtech`. Ejecuta `mise run db:recreate` (borra los datos) o aplica `docker/mysql/init-databases.sql` como root.
+> **Volúmenes anteriores:** si tu volumen de MySQL se creó cuando el sistema eran microservicios, todavía no tiene la base `revtech`. Ejecuta `mise run db:recreate` (borra los datos) o aplica `infra/mysql/init-databases.sql` como root.
 
 ---
 

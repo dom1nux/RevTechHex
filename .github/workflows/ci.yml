@@ -33,7 +33,7 @@ jobs:
               - 'mvnw'
               - '.mvn/**'
               - 'docker-compose.yml'
-              - 'docker/**'
+              - 'infra/**'
               - '.github/workflows/ci.yml'
 
   # Fail early: no database, so it runs in seconds and gates the integration job.
