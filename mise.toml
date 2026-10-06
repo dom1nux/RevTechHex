@@ -1,4 +1,4 @@
-# mise configuration for RevTech Microservices Monorepo
+# mise configuration for the RevTech hexagonal modular monolith
 
 [tasks."db:up"]
 description = "Inicia el contenedor de base de datos MySQL 8.4 LTS"
@@ -9,7 +9,7 @@ description = "Detiene el contenedor de base de datos MySQL"
 run = "docker compose down"
 
 [tasks."db:recreate"]
-description = "Elimina el volumen de MySQL y recrea todas las bases desde init-databases.sql (BORRA LOS DATOS)"
+description = "Elimina el volumen de MySQL y recrea la base revtech desde init-databases.sql (BORRA LOS DATOS)"
 run = ["docker compose down -v", "docker compose up -d mysql"]
 
 [tasks."db:logs"]
@@ -17,20 +17,17 @@ description = "Muestra los logs en tiempo real del contenedor MySQL"
 run = "docker compose logs -f mysql"
 
 [tasks.dev]
-description = "Ejecuta un microservicio local en el host (ej: mise run dev revtech-app)"
-run = "./mvnw spring-boot:run -pl :$usage_service"
-run_windows = "mvnw.cmd spring-boot:run -pl :%usage_service%"
-usage = '''
-arg "[service]" default="revtech-app" help="Nombre del microservicio a ejecutar"
-'''
+description = "Ejecuta revtech-app en el host (puerto 8000)"
+run = "./mvnw spring-boot:run -pl revtech-app"
+run_windows = "mvnw.cmd spring-boot:run -pl revtech-app"
 
 [tasks."app:build"]
-description = "Compila y empaqueta las imágenes OCI de todos los microservicios con Buildpacks"
+description = "Construye la imagen OCI de revtech-app con Buildpacks"
 run = "./mvnw spring-boot:build-image -DskipTests"
 run_windows = "mvnw.cmd spring-boot:build-image -DskipTests"
 
 [tasks."app:up"]
-description = "Levanta todo el sistema completo (BD + Microservicios + API Gateway) en Docker"
+description = "Levanta el sistema completo (MySQL + revtech-app) en Docker"
 run = "docker compose -f docker-compose.full.yml up -d"
 
 [tasks."app:down"]
@@ -38,7 +35,7 @@ description = "Detiene todos los contenedores de la plataforma completa"
 run = "docker compose -f docker-compose.full.yml down"
 
 [tasks."app:logs"]
-description = "Muestra los logs en tiempo real de todos los microservicios y del gateway"
+description = "Muestra los logs en tiempo real de MySQL y revtech-app"
 run = "docker compose -f docker-compose.full.yml logs -f"
 
 [tasks."app:restart"]

@@ -1,248 +1,133 @@
-# Microservicio de Inspección (`msvc-inspection`)
+# `revtech-app`
 
-El microservicio **`msvc-inspection`** es el **Subdominio Core** de RevTech. Encapsula las reglas técnicas vehiculares, la consistencia del agregado [`InspeccionTecnica`](src/main/java/org/parangaricutirimicuaro/msvc_inspection/domain/model/InspeccionTecnica.java) y la emisión reglamentaria de certificados o actas.
+Único desplegable de RevTech: un monolito modular hexagonal con los contextos **Inspección** (core), **Clientes** e
+**Identidad**. La arquitectura y las reglas de dominio están en [ARQUITECTURA-HEXAGONAL](../docs/ARQUITECTURA-HEXAGONAL.md).
 
-> [!TIP]
-> **Modo Autónomo (Mocks en Memoria):**  
-> Este microservicio está diseñado para **arrancar, ejecutarse y ser probado al 100% sin necesidad de que los demás microservicios (`msvc-clientes`, `msvc-identidad`, `MTC`) estén implementados o levantados**.
-
----
-
-## 1. ¿Cómo Funciona la Simulación en Memoria?
-
-El microservicio utiliza el patrón **Puertos y Adaptadores**. Cuando la propiedad `revtech.clients.mock=true` está activa (activada por defecto en [`application.properties`](src/main/resources/application.properties)), Spring Boot inyecta adaptadores simulados en memoria:
-
-| Cliente Simulado | Comportamiento del Mock | Casos de Prueba Disponibles |
-|---|---|---|
-| **`MockVehiculoClient`** | Simula el catálogo de vehículos de `msvc-clientes` | • `idVehiculo: 1` $\rightarrow$ Toyota Corolla (Categoría particular `M1`, Placa `ABC-123`)<br>• `idVehiculo: 2` $\rightarrow$ Camión Volvo FH (Categoría pesada `N3`, Placa `XYZ-789`)<br>• `idVehiculo: 999` $\rightarrow$ Simula vehículo inexistente (HTTP 422) |
-| **`MockUsuarioClient`** | Simula la autenticación y roles de `msvc-identidad` | • IDs impares (ej. `1`, `3`) $\rightarrow$ Rol `INSPECTOR` habilitado<br>• IDs pares (ej. `2`, `4`) $\rightarrow$ Rol `SUPERVISOR` habilitado<br>• `idUsuario: 999` $\rightarrow$ Simula usuario inexistente (HTTP 422) |
-| **`MockMtcClient`** | Simula el ente regulador externo (MTC) | • Emite automáticamente código oficial de validación: `MTC-REV-XXXXXXXX` |
+> [!NOTE]
+> Inspección valida vehículos y personal **en proceso** contra los contextos Clientes e Identidad, que usan datos reales
+> en MySQL. El único sistema simulado es el **MTC** externo (`revtech.clients.mock=true` por defecto): `MockMtcClient`
+> emite un código `MTC-REV-XXXXXXXX` y lo registra en consola.
 
 ---
 
-## 2. Requisitos Previos para Levantar el Servicio
-
-Únicamente se necesita tener en ejecución la base de datos MySQL 8.4 (o cualquier 8.0.16+):
+## 1. Arranque
 
 ```powershell
-# Desde la raíz del repositorio (RevTech-Aggregates):
-docker compose up -d mysql
+# Desde la raíz del repositorio
+mise run db:up
+mise run dev            # o: ./mvnw spring-boot:run -pl revtech-app
 ```
+
+* **API Base:** `http://localhost:8000/api`
+* **Scalar API Reference:** [http://localhost:8000/scalar](http://localhost:8000/scalar)
+* **OpenAPI JSON:** `http://localhost:8000/v3/api-docs/all`
 
 ---
 
-## 3. Instrucciones de Arranque
+## 2. Datos Previos
 
-Ejecuta el microservicio con el Maven Wrapper:
+Una inspección necesita un vehículo registrado y un inspector activo.
+
+### 2.1 Rol de acceso
+Todavía no hay endpoint para administrar roles, así que se crea con SQL:
 
 ```powershell
-# Windows (PowerShell)
-./mvnw.cmd spring-boot:run -pl msvc-inspection
-
-# Linux / macOS
-./mvnw spring-boot:run -pl msvc-inspection
+docker exec revtech-mysql mysql -urevtech_user -prevtech_pass revtech `
+  -e "INSERT INTO roles_acceso (nombre_rol, estado_activo) VALUES ('ROLE_INSPECTOR', 1);"
 ```
 
-Una vez levantado, la aplicación responderá en:
-* **API Base:** `http://localhost:8080/api/inspecciones`
-* **Scalar API Reference (Documentación interactiva):** [http://localhost:8080/scalar](http://localhost:8080/scalar)
-* **OpenAPI JSON:** `http://localhost:8080/v3/api-docs`
+### 2.2 Inspector
+```bash
+curl -X POST http://localhost:8000/api/usuarios \
+  -H "Content-Type: application/json" \
+  -d '{ "username": "inspector_juan", "password": "secreto123", "rolActivoId": 1 }'
+```
+Respuesta `201` con `idUsuario` (en adelante, `1`).
+
+### 2.3 Vehículos
+```bash
+curl -X POST http://localhost:8000/api/vehiculos \
+  -H "Content-Type: application/json" \
+  -d '{ "clienteId": 1, "placa": "ABC-123", "categoria": "M1", "marca": "Toyota", "modelo": "Corolla", "anioFabricacion": 2020 }'
+
+curl -X POST http://localhost:8000/api/vehiculos \
+  -H "Content-Type: application/json" \
+  -d '{ "clienteId": 1, "placa": "XYZ-789", "categoria": "N3", "marca": "Volvo", "modelo": "FH", "anioFabricacion": 2022 }'
+```
+Respuestas `201` con `idVehiculo` (en adelante, `1` y `2`).
 
 ---
 
-## 4. Guía de Pruebas Paso a Paso (cURL / Postman / Scalar)
+## 3. Flujos de Inspección
 
-A continuación se presentan los flujos funcionales completos que puedes ejecutar de forma inmediata.
-
-### Flujo 1: Inspección Aprobada $\rightarrow$ Emisión de Certificado de Inspección (`APTO`)
-
-Este flujo simula un vehículo que aprueba todas las revisiones mecánicas y ambientales.
-
-#### Paso 1.1: Registrar la Inspección
-Valida el vehículo con ID `1` y al inspector con ID `1`.
+### Flujo 1: Inspección aprobada → Certificado (`APTO`)
 
 ```bash
-curl -X POST http://localhost:8080/api/inspecciones \
+# Registrar (vehículo 1, inspector 1)
+curl -X POST http://localhost:8000/api/inspecciones \
   -H "Content-Type: application/json" \
-  -d '{
-    "idVehiculo": 1,
-    "idInspector": 1,
-    "idSupervisor": 2,
-    "tipoInspeccion": "INSPECCION"
-  }'
+  -d '{ "idVehiculo": 1, "idInspector": 1, "tipoInspeccion": "INSPECCION" }'
+
+# Iniciar (asumiendo idInspeccion = 1)
+curl -X PUT http://localhost:8000/api/inspecciones/1/iniciar
+
+# Registrar pruebas
+curl -X POST http://localhost:8000/api/inspecciones/1/pruebas \
+  -H "Content-Type: application/json" -d '{ "prueba": "Frenos", "resultado": "APROBADO" }'
+curl -X POST http://localhost:8000/api/inspecciones/1/pruebas \
+  -H "Content-Type: application/json" -d '{ "prueba": "Emisiones", "resultado": "APROBADO" }'
+
+# Finalizar
+curl -X PUT http://localhost:8000/api/inspecciones/1/finalizar \
+  -H "Content-Type: application/json" \
+  -d '{ "observaciones": "Vehículo en condiciones técnicas óptimas de circulación" }'
 ```
-* **Respuesta esperada (HTTP 201 Created):**
-  * `idInspeccion`: `1` (o ID generado).
-  * `estadoProceso`: `"REGISTRADA"`.
 
----
+Resultado: `estadoProceso: "FINALIZADA"`, `resultado.condicion: "APTO"`, `certificado` no nulo y `acta: null`.
+En consola aparece `[MOCK-MTC] Notificando inspección 1 para placa ABC-123 con resultado APTO`.
 
-#### Paso 1.2: Iniciar la Evaluación en Línea
-Marca el inicio temporal de la revisión técnica.
+### Flujo 2: Inspección observada → Acta de Observaciones (`OBSERVADO`)
 
 ```bash
-curl -X PUT http://localhost:8080/api/inspecciones/1/iniciar
+curl -X POST http://localhost:8000/api/inspecciones \
+  -H "Content-Type: application/json" \
+  -d '{ "idVehiculo": 2, "idInspector": 1, "tipoInspeccion": "INSPECCION" }'
+curl -X PUT http://localhost:8000/api/inspecciones/2/iniciar
+curl -X POST http://localhost:8000/api/inspecciones/2/pruebas \
+  -H "Content-Type: application/json" -d '{ "prueba": "Emisiones", "resultado": "RECHAZADO" }'
+curl -X PUT http://localhost:8000/api/inspecciones/2/finalizar \
+  -H "Content-Type: application/json" \
+  -d '{ "observaciones": "Opacidad de humos excede el límite permisible" }'
 ```
-* **Respuesta esperada (HTTP 200 OK):**
-  * `estadoProceso`: `"EN_PROCESO"`.
-  * `periodoInspeccion.fechaInicio`: Marca de tiempo actual.
 
----
+Resultado: `resultado.condicion: "OBSERVADO"`, `acta` no nula y `certificado: null`.
 
-#### Paso 1.3: Registrar Pruebas Técnicas Aprobadas
-Registra las evaluaciones individuales de los sistemas vehiculares.
+### Flujo 3: Consultar
 
 ```bash
-# Prueba 1: Frenos
-curl -X POST http://localhost:8080/api/inspecciones/1/pruebas \
-  -H "Content-Type: application/json" \
-  -d '{
-    "prueba": "Frenos",
-    "resultado": "APROBADO"
-  }'
-
-# Prueba 2: Emisiones
-curl -X POST http://localhost:8080/api/inspecciones/1/pruebas \
-  -H "Content-Type: application/json" \
-  -d '{
-    "prueba": "Emisiones",
-    "resultado": "APROBADO"
-  }'
-
-# Prueba 3: Suspensión y Dirección
-curl -X POST http://localhost:8080/api/inspecciones/1/pruebas \
-  -H "Content-Type: application/json" \
-  -d '{
-    "prueba": "Suspensión",
-    "resultado": "APROBADO"
-  }'
+curl http://localhost:8000/api/inspecciones/1
 ```
 
----
+### Flujo 4: Invariantes y validaciones
 
-#### Paso 1.4: Finalizar Inspección y Emitir Documento Oficial
-El agregado evalúa que todas las pruebas son aprobatorias y **emite automáticamente el Certificado de Inspección**:
+| Caso | Respuesta |
+|---|---|
+| Vehículo o inspector inexistente (o inspector suspendido) | `422` Referencia externa inválida |
+| Registrar pruebas sin iniciar la inspección | `409` |
+| Finalizar sin pruebas registradas | `409` |
+| Registrar un usuario con un username existente | `409` |
 
-```bash
-curl -X PUT http://localhost:8080/api/inspecciones/1/finalizar \
-  -H "Content-Type: application/json" \
-  -d '{
-    "observaciones": "Vehículo en condiciones técnicas óptimas de circulación"
-  }'
-```
-
-* **Resultado en la respuesta (HTTP 200 OK):**
-  * `estadoProceso`: `"FINALIZADA"`
-  * `resultado.condicion`: `"APTO"`
-  * `certificado`: Objeto no nulo (`idCertificado`, `fechaEmision`)
-  * `acta`: `null`
-  * En consola: Log `[MOCK-MTC] Notificando inspección 1 para placa ABC-123 con resultado APTO`
+> Las pruebas válidas son `Frenos`, `Dirección`, `Suspensión`, `Luces`, `Neumáticos` y `Emisiones`.
 
 ---
 
-### Flujo 2: Inspección Observada $\rightarrow$ Emisión de Acta de Observaciones (`OBSERVADO`)
+## 4. MTC Real
 
-Este flujo simula un vehículo que presenta fallas técnicas graves o desfavorables.
-
-#### Paso 2.1: Registrar e Iniciar Nueva Inspección
-```bash
-# Registrar para vehículo ID 2 (Camión Volvo FH)
-curl -X POST http://localhost:8080/api/inspecciones \
-  -H "Content-Type: application/json" \
-  -d '{
-    "idVehiculo": 2,
-    "idInspector": 1,
-    "tipoInspeccion": "INSPECCION"
-  }'
-
-# Iniciar inspección (asumiendo idInspeccion = 2)
-curl -X PUT http://localhost:8080/api/inspecciones/2/iniciar
-```
-
----
-
-#### Paso 2.2: Registrar Pruebas Técnicas con Deficiencias
-```bash
-# Prueba 1: Frenos Aprobados
-curl -X POST http://localhost:8080/api/inspecciones/2/pruebas \
-  -H "Content-Type: application/json" \
-  -d '{
-    "prueba": "Frenos",
-    "resultado": "APROBADO"
-  }'
-
-# Prueba 2: Emisiones Rechazadas
-curl -X POST http://localhost:8080/api/inspecciones/2/pruebas \
-  -H "Content-Type: application/json" \
-  -d '{
-    "prueba": "Emisiones",
-    "resultado": "RECHAZADO"
-  }'
-```
-
----
-
-#### Paso 2.3: Finalizar Inspección
-Al detectar la prueba rechazada, el aggregate root **emite exclusivamente el Acta de Observaciones**:
-
-```bash
-curl -X PUT http://localhost:8080/api/inspecciones/2/finalizar \
-  -H "Content-Type: application/json" \
-  -d '{
-    "observaciones": "Opacidad de humos excede límite permisible según normativa D.S. 025-2008-MTC"
-  }'
-```
-
-* **Resultado en la respuesta (HTTP 200 OK):**
-  * `estadoProceso`: `"FINALIZADA"`
-  * `resultado.condicion`: `"OBSERVADO"`
-  * `acta`: Objeto no nulo con el detalle de las observaciones
-  * `certificado`: `null`
-
----
-
-### Flujo 3: Consultar Inspección por ID
-
-Permite auditar el estado consolidado, incluyendo las pruebas ejecutadas y el documento generado:
-
-```bash
-curl -X GET http://localhost:8080/api/inspecciones/1
-```
-
----
-
-### Flujo 4: Prueba de Invariantes y Validaciones
-
-1. **Vehículo inexistente en el catálogo:**
-   ```bash
-   curl -X POST http://localhost:8080/api/inspecciones \
-     -H "Content-Type: application/json" \
-     -d '{ "idVehiculo": 999, "idInspector": 1 }'
-   ```
-   *Respuesta:* HTTP 422 `Vehículo no encontrado con ID: 999`.
-
-2. **Intentar registrar pruebas sin haber iniciado la inspección:**
-   *Respuesta:* HTTP 409 `Solo se pueden registrar pruebas cuando la inspección está EN_PROCESO`.
-
-3. **Intentar finalizar sin pruebas registradas:**
-   *Respuesta:* HTTP 409 `No se puede finalizar la inspección sin haber registrado pruebas técnicas`.
-
----
-
-## 5. Transición a Producción / Microservicios Reales
-
-Cuando los microservicios colaboradores (`msvc-clientes`, `msvc-identidad`, `MTC`) estén implementados y desplegados, basta con modificar una línea en [`src/main/resources/application.properties`](src/main/resources/application.properties):
+Para notificar al MTC real en lugar del mock:
 
 ```properties
-# Desactivar adaptadores Mock en memoria
 revtech.clients.mock=false
-
-# Configurar las URLs reales de los servicios
-clients.msvc-clientes.url=http://msvc-clientes:8081
-clients.msvc-identidad.url=http://msvc-identidad:8082
 clients.mtc.url=http://mtc-gateway:8089
 ```
 
-No se requiere ningún cambio de código en la lógica de dominio ni en los servicios del microservicio.
-
-> Las pruebas válidas son `Frenos`, `Dirección`, `Suspensión`, `Luces`, `Neumáticos` y `Emisiones`. Arquitectura y reglas: [ARQUITECTURA-HEXAGONAL-INSPECCION](../docs/ARQUITECTURA-HEXAGONAL-INSPECCION.md).
+No se requiere ningún cambio en el dominio ni en los casos de uso.

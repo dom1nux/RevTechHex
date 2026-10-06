@@ -11,15 +11,12 @@
     <packaging>pom</packaging>
     <modules>
         <module>revtech-app</module>
-        <module>msvc-clientes</module>
-        <module>msvc-identidad</module>
-        <module>msvc-gateway</module>
     </modules>
-    <groupId>org.parangaricutirimicuaro.springcloud.msvc</groupId>
-    <artifactId>RevTech-Aggregates</artifactId>
+    <groupId>org.parangaricutirimicuaro.revtech</groupId>
+    <artifactId>revtech-parent</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <name>revtech</name>
-    <description>revtech</description>
+    <description>RevTech hexagonal modular monolith</description>
     <url/>
     <licenses>
         <license/>
