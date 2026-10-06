@@ -1,0 +1,304 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "OpenAPI definition",
+    "version": "v0"
+  },
+  "servers": [
+    {
+      "url": "http://localhost:8081",
+      "description": "Generated server url"
+    }
+  ],
+  "paths": {
+    "/api/vehiculos": {
+      "post": {
+        "tags": [
+          "vehiculo-controller"
+        ],
+        "operationId": "crear",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CrearVehiculoRequestDto"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/VehiculoResponseDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/scalar": {
+      "get": {
+        "tags": [
+          "scalar-web-mvc-controller"
+        ],
+        "operationId": "getDocs",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/scalar/scalar.js": {
+      "get": {
+        "tags": [
+          "scalar-web-mvc-controller"
+        ],
+        "operationId": "getScalarJs",
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "type": "string",
+                  "format": "byte"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/vehiculos/{idVehiculo}": {
+      "get": {
+        "tags": [
+          "vehiculo-controller"
+        ],
+        "operationId": "obtenerPorId",
+        "parameters": [
+          {
+            "name": "idVehiculo",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/VehiculoResponseDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/vehiculos/placa/{placa}": {
+      "get": {
+        "tags": [
+          "vehiculo-controller"
+        ],
+        "operationId": "obtenerPorPlaca",
+        "parameters": [
+          {
+            "name": "placa",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/VehiculoResponseDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/clientes/{idCliente}": {
+      "get": {
+        "tags": [
+          "cliente-controller"
+        ],
+        "operationId": "obtenerPorId_1",
+        "parameters": [
+          {
+            "name": "idCliente",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ClienteResponseDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/clientes/doc/{docIdent}": {
+      "get": {
+        "tags": [
+          "cliente-controller"
+        ],
+        "operationId": "obtenerPorDocIdent",
+        "parameters": [
+          {
+            "name": "docIdent",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "*/*": {
+                "schema": {
+                  "$ref": "#/components/schemas/ClienteResponseDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "CrearVehiculoRequestDto": {
+        "type": "object",
+        "properties": {
+          "clienteId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "placa": {
+            "type": "string",
+            "minLength": 1
+          },
+          "categoria": {
+            "type": "string",
+            "enum": [
+              "L",
+              "M1",
+              "M2",
+              "M3",
+              "N1",
+              "N2",
+              "N3",
+              "O1",
+              "O2",
+              "O3",
+              "O4",
+              "OTRO"
+            ]
+          },
+          "marca": {
+            "type": "string"
+          },
+          "modelo": {
+            "type": "string"
+          },
+          "anioFabricacion": {
+            "type": "integer",
+            "format": "int32"
+          }
+        },
+        "required": [
+          "clienteId",
+          "placa"
+        ]
+      },
+      "VehiculoResponseDto": {
+        "type": "object",
+        "properties": {
+          "idVehiculo": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "placa": {
+            "type": "string"
+          },
+          "categoria": {
+            "type": "string"
+          },
+          "marca": {
+            "type": "string"
+          },
+          "modelo": {
+            "type": "string"
+          },
+          "anioFabricacion": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "clienteId": {
+            "type": "integer",
+            "format": "int64"
+          }
+        }
+      },
+      "ClienteResponseDto": {
+        "type": "object",
+        "properties": {
+          "idCliente": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "docIdent": {
+            "type": "string"
+          },
+          "nombre": {
+            "type": "string"
+          },
+          "fechaRegistro": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      }
+    }
+  }
+}
