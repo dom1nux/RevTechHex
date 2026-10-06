@@ -21,6 +21,7 @@ Si es tu primera vez en el proyecto, lee en este orden (unos 50 minutos en total
 | 2 | [Arquitectura](docs/02-arquitectura.md) | Hexagonal y DDD explicados desde cero, carpetas y reglas |
 | 3 | [Recorrido de una petición](docs/03-recorrido-de-una-peticion.md) | Una petición real seguida archivo por archivo |
 | 4 | [Cómo agregar un contexto](docs/04-como-agregar-un-contexto.md) | Receta paso a paso para implementar Citas, Pagos o Administrativa |
+| 5 | [Datos de prueba](docs/05-datos-de-prueba.md) | Cargar y regenerar los datos de ejemplo (`mise run db:seed`) |
 | — | [Guía práctica de `revtech-app`](revtech-app/README.md) | Ejecutar los flujos de inspección con `curl` |
 | — | [DISEÑO TÁCTICO - REVTECH](docs/DISEÑO%20TÁCTICO%20-%20REVTECH.md) | El diseño formal del curso: entidades, objetos de valor y agregados |
 
