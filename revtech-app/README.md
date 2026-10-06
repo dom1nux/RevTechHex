@@ -1,7 +1,7 @@
 # `revtech-app`
 
 Único desplegable de RevTech: un monolito modular hexagonal con los contextos **Inspección** (core), **Clientes** e
-**Identidad**. La arquitectura y las reglas de dominio están en [ARQUITECTURA-HEXAGONAL](../docs/ARQUITECTURA-HEXAGONAL.md).
+**Identidad**. Para entender el negocio y la arquitectura, empieza por la [ruta de lectura](../README.md#1-ruta-de-lectura).
 
 > [!NOTE]
 > Inspección valida vehículos y personal **en proceso** contra los contextos Clientes e Identidad, que usan datos reales
