@@ -16,6 +16,14 @@ run = ["docker compose down -v", "docker compose up -d mysql"]
 description = "Muestra los logs en tiempo real del contenedor MySQL"
 run = "docker compose logs -f mysql"
 
+[tasks."db:seed"]
+description = "Carga infra/mysql/seed-data.sql en la base revtech (las tablas deben estar vacias; arranca la app una vez antes para crear el esquema)"
+run = ["docker cp infra/mysql/seed-data.sql revtech-mysql:/tmp/seed-data.sql", "docker exec revtech-mysql sh -c \"mysql -urevtech_user -prevtech_pass revtech < /tmp/seed-data.sql\""]
+
+[tasks."db:dump-seed"]
+description = "Vuelca los datos actuales de revtech (solo INSERTs) a infra/mysql/seed-data.sql; ver infra/seed/seed.ps1"
+run = ["docker exec revtech-mysql mysqldump -urevtech_user -prevtech_pass --no-tablespaces --no-create-info --complete-insert --skip-extended-insert --skip-add-locks --skip-comments --skip-triggers --result-file=/tmp/seed-data.sql revtech", "docker cp revtech-mysql:/tmp/seed-data.sql infra/mysql/seed-data.sql"]
+
 [tasks.dev]
 description = "Ejecuta revtech-app en el host (puerto 8000)"
 run = "./mvnw spring-boot:run -pl revtech-app"
