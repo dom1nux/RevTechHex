@@ -1,5 +1,7 @@
 # RevTech — Plataforma Integral de Inspección Técnica Vehicular
 
+[![CI](https://github.com/dom1nux/RevTechHex/actions/workflows/ci.yml/badge.svg)](https://github.com/dom1nux/RevTechHex/actions/workflows/ci.yml)
+
 RevTech es el software de un **centro de inspección técnica vehicular** en el Perú. Registra cada inspección, anota el
 resultado de las pruebas (frenos, luces, emisiones…), decide si el vehículo es **APTO** u **OBSERVADO**, emite el
 Certificado de Inspección o el Acta de Observaciones, e informa el resultado al **MTC**.
@@ -140,3 +142,4 @@ Con la aplicación levantada en el puerto `8000`:
 * **Rama principal:** `main`.
 * **Commits:** Formato *Conventional Commits* en inglés (`feat:`, `fix:`, `refactor:`, `build:`, `docs:`, `chore:`).
 * **Stacked PRs:** Se gestionan mediante la extensión `github/gh-stack` conforme a las reglas descritas en [**AGENTS.md**](AGENTS.md).
+* **Integración continua:** cada PR ejecuta las pruebas en GitHub Actions ([`ci.yml`](.github/workflows/ci.yml)); `main` solo acepta el merge si pasan en todos los PR del stack.
