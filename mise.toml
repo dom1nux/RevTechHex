@@ -17,11 +17,11 @@ description = "Muestra los logs en tiempo real del contenedor MySQL"
 run = "docker compose logs -f mysql"
 
 [tasks.dev]
-description = "Ejecuta un microservicio local en el host (ej: mise run dev msvc-inspection)"
+description = "Ejecuta un microservicio local en el host (ej: mise run dev revtech-app)"
 run = "./mvnw spring-boot:run -pl :$usage_service"
 run_windows = "mvnw.cmd spring-boot:run -pl :%usage_service%"
 usage = '''
-arg "[service]" default="msvc-inspection" help="Nombre del microservicio a ejecutar"
+arg "[service]" default="revtech-app" help="Nombre del microservicio a ejecutar"
 '''
 
 [tasks."app:build"]
