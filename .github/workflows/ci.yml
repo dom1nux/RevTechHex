@@ -12,10 +12,34 @@ concurrency:
 
 permissions:
   contents: read
+  pull-requests: read
 
 jobs:
+  # The workflow always runs so the required `test` check always reports.
+  # Docs-only changes skip `test`, and a skipped job satisfies the ruleset.
+  changes:
+    runs-on: ubuntu-latest
+    outputs:
+      code: ${{ steps.filter.outputs.code }}
+    steps:
+      - uses: actions/checkout@v5
+      - uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          filters: |
+            code:
+              - 'revtech-app/src/**'
+              - '**/pom.xml'
+              - 'mvnw'
+              - '.mvn/**'
+              - 'docker-compose.yml'
+              - 'docker/**'
+              - '.github/workflows/ci.yml'
+
   test:
     name: test
+    needs: changes
+    if: needs.changes.outputs.code == 'true'
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:

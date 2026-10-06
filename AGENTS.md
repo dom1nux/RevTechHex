@@ -143,6 +143,7 @@ gh stack sync --prune
 
 ### CI Gate (`.github/workflows/ci.yml`)
 - Every PR (any base branch, drafts included) runs the `test` job: MySQL via `docker compose up -d --wait mysql`, then `./mvnw -B -ntp verify`.
+- `test` only runs when code changes (`revtech-app/src/**`, poms, `mvnw`/`.mvn`, `docker-compose.yml`, `docker/**`, `ci.yml`); otherwise it is skipped, which still satisfies the required check. Update the `changes` filter when adding build-relevant paths.
 - The `main` ruleset requires `test` to pass and the PR to be up to date with `main`; run `gh stack sync` / `gh stack rebase` when GitHub reports it is behind.
 - Do not merge a stack until `test` is green on every PR in it. Merge up to the **top** PR: its run tests the combined code of all layers.
 
