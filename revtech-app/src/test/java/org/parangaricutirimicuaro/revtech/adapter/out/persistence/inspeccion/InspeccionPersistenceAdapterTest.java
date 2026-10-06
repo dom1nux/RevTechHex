@@ -16,10 +16,10 @@ import static org.parangaricutirimicuaro.revtech.domain.inspeccion.model.Veredic
 
 /**
  * Verifica el adaptador contra MySQL real (requiere {@code docker compose up -d mysql}).
- * Cada prueba se ejecuta en una transacción que se revierte; {@code validate} garantiza que el
- * mapeo JPA coincide con el esquema existente sin modificarlo.
+ * Cada prueba se ejecuta en una transacción que se revierte. Se usa {@code update} (igual que la
+ * aplicación) para no depender del orden de ejecución: el esquema lo genera Hibernate mientras no exista Flyway.
  */
-@DataJpaTest(properties = "spring.jpa.hibernate.ddl-auto=validate")
+@DataJpaTest(properties = "spring.jpa.hibernate.ddl-auto=update")
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 @Import(InspeccionPersistenceAdapter.class)
 class InspeccionPersistenceAdapterTest {

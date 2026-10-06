@@ -2,6 +2,7 @@ package org.parangaricutirimicuaro.revtech.adapter.in.web.shared;
 
 import org.parangaricutirimicuaro.revtech.application.inspeccion.exception.ReferenciaExternaInvalidaException;
 import org.parangaricutirimicuaro.revtech.application.inspeccion.exception.ServicioExternoNoDisponibleException;
+import org.parangaricutirimicuaro.revtech.domain.clientes.exception.DatoClienteInvalidoException;
 import org.parangaricutirimicuaro.revtech.domain.inspeccion.exception.DatoInvalidoException;
 import org.parangaricutirimicuaro.revtech.domain.inspeccion.exception.InspeccionNoEncontradaException;
 import org.parangaricutirimicuaro.revtech.domain.inspeccion.exception.ReglaNegocioVioladaException;
@@ -28,6 +29,11 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(DatoInvalidoException.class)
     ProblemDetail handleDatoInvalido(DatoInvalidoException e) {
+        return problem(HttpStatus.BAD_REQUEST, "Dato inválido", e.getMessage());
+    }
+
+    @ExceptionHandler(DatoClienteInvalidoException.class)
+    ProblemDetail handleDatoClienteInvalido(DatoClienteInvalidoException e) {
         return problem(HttpStatus.BAD_REQUEST, "Dato inválido", e.getMessage());
     }
 
