@@ -3,6 +3,10 @@ package org.parangaricutirimicuaro.revtech.adapter.in.web.shared;
 import org.parangaricutirimicuaro.revtech.application.inspeccion.exception.ReferenciaExternaInvalidaException;
 import org.parangaricutirimicuaro.revtech.application.inspeccion.exception.ServicioExternoNoDisponibleException;
 import org.parangaricutirimicuaro.revtech.domain.clientes.exception.DatoClienteInvalidoException;
+import org.parangaricutirimicuaro.revtech.domain.identidad.exception.CredencialesInvalidasException;
+import org.parangaricutirimicuaro.revtech.domain.identidad.exception.DatoIdentidadInvalidoException;
+import org.parangaricutirimicuaro.revtech.domain.identidad.exception.RecursoIdentidadNoEncontradoException;
+import org.parangaricutirimicuaro.revtech.domain.identidad.exception.ReglaIdentidadVioladaException;
 import org.parangaricutirimicuaro.revtech.domain.inspeccion.exception.DatoInvalidoException;
 import org.parangaricutirimicuaro.revtech.domain.inspeccion.exception.InspeccionNoEncontradaException;
 import org.parangaricutirimicuaro.revtech.domain.inspeccion.exception.ReglaNegocioVioladaException;
@@ -35,6 +39,26 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(DatoClienteInvalidoException.class)
     ProblemDetail handleDatoClienteInvalido(DatoClienteInvalidoException e) {
         return problem(HttpStatus.BAD_REQUEST, "Dato inválido", e.getMessage());
+    }
+
+    @ExceptionHandler(DatoIdentidadInvalidoException.class)
+    ProblemDetail handleDatoIdentidadInvalido(DatoIdentidadInvalidoException e) {
+        return problem(HttpStatus.BAD_REQUEST, "Dato inválido", e.getMessage());
+    }
+
+    @ExceptionHandler(RecursoIdentidadNoEncontradoException.class)
+    ProblemDetail handleIdentidadNoEncontrada(RecursoIdentidadNoEncontradoException e) {
+        return problem(HttpStatus.NOT_FOUND, "Recurso no encontrado", e.getMessage());
+    }
+
+    @ExceptionHandler(ReglaIdentidadVioladaException.class)
+    ProblemDetail handleReglaIdentidad(ReglaIdentidadVioladaException e) {
+        return problem(HttpStatus.CONFLICT, "Regla de negocio violada", e.getMessage());
+    }
+
+    @ExceptionHandler(CredencialesInvalidasException.class)
+    ProblemDetail handleCredenciales(CredencialesInvalidasException e) {
+        return problem(HttpStatus.UNAUTHORIZED, "No autenticado", e.getMessage());
     }
 
     @ExceptionHandler(TransicionEstadoInvalidaException.class)
