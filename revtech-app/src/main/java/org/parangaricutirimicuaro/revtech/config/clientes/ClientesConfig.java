@@ -7,6 +7,8 @@ import org.parangaricutirimicuaro.revtech.application.clientes.service.VehiculoA
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import java.time.Clock;
+
 /**
  * Ensambla el contexto Atención a Clientes: la capa de aplicación no conoce Spring, por lo que se registra aquí.
  */
@@ -14,8 +16,8 @@ import org.springframework.context.annotation.Configuration;
 public class ClientesConfig {
 
     @Bean
-    ClienteApplicationService clienteApplicationService(ClienteRepositoryPort repository) {
-        return new ClienteApplicationService(repository);
+    ClienteApplicationService clienteApplicationService(ClienteRepositoryPort repository, Clock clock) {
+        return new ClienteApplicationService(repository, clock);
     }
 
     @Bean

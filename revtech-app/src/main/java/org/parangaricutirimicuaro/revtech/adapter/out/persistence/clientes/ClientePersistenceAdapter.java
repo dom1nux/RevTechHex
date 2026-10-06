@@ -22,6 +22,12 @@ public class ClientePersistenceAdapter implements ClienteRepositoryPort {
     }
 
     @Override
+    @Transactional
+    public Cliente guardar(Cliente cliente) {
+        return ClientesPersistenceMapper.toDomain(repository.save(ClientesPersistenceMapper.toEntity(cliente)));
+    }
+
+    @Override
     public Optional<Cliente> buscarPorId(ClienteId id) {
         return repository.findById(id.valor()).map(ClientesPersistenceMapper::toDomain);
     }

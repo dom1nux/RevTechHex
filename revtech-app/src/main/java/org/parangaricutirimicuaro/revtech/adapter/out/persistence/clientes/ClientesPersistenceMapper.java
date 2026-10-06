@@ -20,6 +20,15 @@ final class ClientesPersistenceMapper {
                 entity.getNombre(), entity.getFechaRegistro());
     }
 
+    static ClienteJpaEntity toEntity(Cliente cliente) {
+        ClienteJpaEntity entity = new ClienteJpaEntity();
+        entity.setIdCliente(cliente.getId() != null ? cliente.getId().valor() : null);
+        entity.setDocIdent(cliente.getDocIdent());
+        entity.setNombre(cliente.getNombre());
+        entity.setFechaRegistro(cliente.getFechaRegistro());
+        return entity;
+    }
+
     static VehiculoJpaEntity toEntity(Vehiculo vehiculo) {
         VehiculoJpaEntity entity = new VehiculoJpaEntity();
         entity.setIdVehiculo(vehiculo.getId() != null ? vehiculo.getId().valor() : null);
