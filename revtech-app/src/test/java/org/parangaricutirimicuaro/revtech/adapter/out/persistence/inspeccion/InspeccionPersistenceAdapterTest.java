@@ -2,6 +2,7 @@ package org.parangaricutirimicuaro.revtech.adapter.out.persistence.inspeccion;
 
 import jakarta.persistence.EntityManager;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.parangaricutirimicuaro.revtech.domain.inspeccion.model.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,6 +20,7 @@ import static org.parangaricutirimicuaro.revtech.domain.inspeccion.model.Veredic
  * Cada prueba se ejecuta en una transacción que se revierte. Se usa {@code update} (igual que la
  * aplicación) para no depender del orden de ejecución: el esquema lo genera Hibernate mientras no exista Flyway.
  */
+@Tag("integration")
 @DataJpaTest(properties = "spring.jpa.hibernate.ddl-auto=update")
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 @Import(InspeccionPersistenceAdapter.class)
