@@ -40,3 +40,13 @@ mise run db:dump-seed      # reescribe infra/mysql/seed-data.sql
 
 `seed.ps1` y `seed.sh` hacen lo mismo (mismos datos, la primera con PowerShell y la segunda con `curl`). Usan datos fijos (sin azar), por lo que el resultado es reproducible. El volcado es solo de datos
 (`--no-create-info`, un `INSERT` por fila): el esquema sigue siendo de Hibernate. Revisa el diff antes de hacer commit.
+
+## Respaldo completo provisional
+
+`infra/mysql/backup.sql` es un volcado **completo** (esquema + datos de prueba) de la base `revtech`, pensado como
+respaldo provisional. A diferencia de `seed-data.sql`, incluye los `CREATE TABLE` y borra las tablas existentes
+(`DROP TABLE IF EXISTS`), así que **reemplaza** lo que haya en la base. No hace falta arrancar la app antes:
+
+```powershell
+docker exec -i revtech-mysql mysql -urevtech_user -prevtech_pass revtech < infra/mysql/backup.sql
+```
