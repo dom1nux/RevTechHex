@@ -6,6 +6,6 @@ public record RegistrarClienteRequestDto(
         @NotBlank(message = "El documento de identidad es obligatorio")
         String docIdent,
 
-        @NotBlank(message = "nombre es obligatorio")
+        @NotBlank(message = "El nombre es obligatorio")
         String nombre
 ) {}
